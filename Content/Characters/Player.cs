@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SurvivalGame.Content.Characters
 {
-    class Player
+    public class Player
     {
         int playerXCoord;
         int playerYCoord;
