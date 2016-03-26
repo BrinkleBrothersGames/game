@@ -48,6 +48,7 @@
     <Compile Include="Content\Items\ConsumableItem.cs" />
     <Compile Include="Content\Items\Inventory.cs" />
     <Compile Include="Content\Items\Item.cs" />
+    <Compile Include="Content\World\TerrainTypes\Terrain.cs" />
     <Compile Include="Content\World\Map.cs" />
     <Compile Include="Content\World\Tile.cs" />
     <Compile Include="Engine\Time\Clock.cs" />

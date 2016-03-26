@@ -46,16 +46,16 @@ namespace Game
             switch (action)
             {
                 case ("w"):
-                    playerCoords[0] -= 1;
+                    playerCoords[1] += 1; 
                     break;
                 case ("s"):
-                    playerCoords[0] += 1;
-                    break;
-                case ("a"):
                     playerCoords[1] -= 1;
                     break;
+                case ("a"):
+                    playerCoords[0] -= 1;
+                    break;
                 case ("d"):
-                    playerCoords[1] += 1;
+                    playerCoords[0] += 1;
                     break;
                     // TODO - these 'movement' commands shouldn't work this way. Should call method themselves with the new value
                 case ("status"):
@@ -184,7 +184,7 @@ namespace Game
             {
                 // Render changes to map
                 // TODO - shouldn't have to pass 'currentLevel' twice
-                currentLevel.RenderMap(currentLevel);
+                currentLevel.RenderMap(currentLevel, player);
 
                 // Wait for player to take action
                 input = Console.ReadLine();
