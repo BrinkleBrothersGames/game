@@ -173,8 +173,8 @@ namespace Game
             // TODO - the GameInit initialize class should really do all this
             Map currentLevel = new Map();
             Inventory inv = new Inventory();
-            Player player = new Player(5, 5, inv);
-            player.UpdatePlayerPosition(currentLevel, player, new int[] {5,5});
+            Player player = new Player(1, 1, inv);
+            player.UpdatePlayerPosition(currentLevel, player, new int[] {1,1});
             Clock clock = new Clock(player);
             GameInit game = new GameInit(currentLevel, player, clock);
             game.run = true;
