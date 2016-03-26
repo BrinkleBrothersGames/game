@@ -79,6 +79,10 @@ namespace Game.Content.World
             {
                 return "#";
             }
+            else if ( tile.contentsItems.inventory.Count > 0)
+            {
+                return "S";
+            }
             else if ( tile.contents.Contains("floor"))
             {
                 return ".";

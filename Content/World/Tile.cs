@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SurvivalGame.Content.Items;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace SurvivalGame.Content.World
     {
         // Probably want to change this to 'thing' class, which is implemented by Object and Terrain classes.
         public List<string> contents = new List<string>();
+        public Inventory contentsItems = new Inventory();
+        public bool blocksMovement = false;
 
         Tile(List<string> content)
         {
@@ -26,6 +29,7 @@ namespace SurvivalGame.Content.World
         { 
             List<string> wallTileContents= new List<string>(new string[] { "wall" });
             Tile wallTile = new Tile(wallTileContents);
+            wallTile.BlockMovement();
             return wallTile;
         }
 
@@ -50,7 +54,12 @@ namespace SurvivalGame.Content.World
         public Tile AddContentToTile(Tile tile, string content)
         {
             tile.contents.Add(content);
-            return tile;
+            return tile;       
+        }
+
+        public void BlockMovement()
+        {
+            this.blocksMovement = true;
         }
     }
 }
