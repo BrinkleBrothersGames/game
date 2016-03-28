@@ -4,28 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SurvivalGame.Content.Items
+namespace SurvivalGame.Content.World.TerrainTypes
 {
-    public class Item
+    public class Terrain
     {
-        // TODO - Should have seperate display name and name.
         public string name;
-        
-        public Item(string name)
+        public bool blocksMovement = false;
+
+        public Terrain(string name)
         {
             this.name = name;
         }
 
+
+
         public override bool Equals(object obj)
         {
             // If parameter cannot be cast to Point return false.
-            Item item = obj as Item;
-            if ((System.Object)item == null)
+            Terrain terrain = obj as Terrain;
+            if ((System.Object)terrain == null)
             {
                 return false;
             }
 
-            if (this.name == item.name)
+            if (this.name == terrain.name)
             {
                 return true;
             }

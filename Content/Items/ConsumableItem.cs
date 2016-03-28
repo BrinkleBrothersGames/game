@@ -41,5 +41,24 @@ namespace SurvivalGame.Content.Items
             player.inv.RemoveItemFromInventory(this);
         }
 
+        public int GetNeedValue(string need)
+        {
+            int value = 0;
+
+            switch (need)
+            {
+                case ("hunger"):
+                    return this.hungerChange;
+                case ("thirst"):
+                    return this.thirstChange;
+                case ("tiredness"):
+                    return this.tirednessChange;
+                case ("health"):
+                    return this.healthChange;
+            }
+
+            return value;
+        }
+
     }
 }

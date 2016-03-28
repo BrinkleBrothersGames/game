@@ -1,5 +1,7 @@
-﻿using SurvivalGame.Content.Items;
+using SurvivalGame.Content.Characters;
+using SurvivalGame.Content.Items;
 using SurvivalGame.Content.World;
+using SurvivalGame.Content.World.TerrainTypes;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,15 +14,43 @@ namespace Game.Content.World
         public int height;
         public int width;
         public Tile[,] layout;
-        const int SEED = 19951995;
+        public const int SEED = 123456789;
         Random rnd = new Random(SEED);
+        public List<Creature> presentCreatures = new List<Creature>();
 
         /// <summary>
         /// Default constructor creates empty room - test purposes only
         /// </summary>
         public Map()
         {
-            layout = GenerateSuburbsMap(rnd.Next(101, 201), rnd.Next(51, 81));
+            //height = rnd.Next(101, 151);
+            //width = rnd.Next(101, 151);
+            height = 20;
+            width = 20;
+            layout = GenerateSuburbsMap(width, height);
+            Creature rat = new Creature("rat", new int[] { 5, 5 });
+            presentCreatures.Add(rat);
+            rat.UpdatePosition(this, new int[] { 5, 5 });
+
+           // for(int i = 0; i < 50; i++)
+           // {
+           //     Creature ratBaby = new Creature("rat", new int[] { 0, 0});
+           //     presentCreatures.Add(ratBaby);
+           // }
+           //
+           // foreach(Creature creature in presentCreatures)
+           // {
+           //     creature.UpdatePosition(this, new int[] { rnd.Next(10, width), rnd.Next(10, height) });
+           // }
+        }
+
+        public void DoCreatureActions()
+        {
+            foreach(Creature creature in presentCreatures)
+            {
+                creature.ai.Update(this);
+                creature.DecideAction();
+            }
         }
 
         // TODO this should be moved to some kind of graphics class - in Engine or Utils. Fine here for now.
@@ -28,17 +58,27 @@ namespace Game.Content.World
         /// Takes a map and displays it in its entirety, row by row
         /// </summary>
         /// <param name="map"></param>
-        public void RenderMap(Map map)
+        public void RenderMap(Map map, Player player)
         {
-            for (int x = 0; x < map.layout.GetLength(0); x++)
+            int[] playerCoords = player.GetPlayerCoords();
+
+            for (int y = playerCoords[1] + 15; y >= playerCoords[1] - 15; y--)
             {
                 string rowString = "";
 
                 // And for each column of that row...
-                for (int y = 0; y < map.layout.GetLength(1); y++)
+                for (int x = playerCoords[0] - 15; x <= playerCoords[0] + 15; x++)
                 {
                     // Add the graphic representation of that tile to a string
-                    rowString += GetTileImage(map.layout[x, y]);
+                    if (x < 0 || x >= map.layout.GetLength(0) || y < 0 || y >= map.layout.GetLength(1))
+                    {
+                        rowString += " ";
+                    }
+                    else
+                    {
+                        rowString += GetTileImage(map.layout[x, y]);
+                    }
+
                 }
 
                 // When the row is complete, print it
@@ -54,19 +94,29 @@ namespace Game.Content.World
         /// <returns></returns>
         public string GetTileImage(Tile tile)
         {
-            if (tile.contents.Contains("player"))
+            // TODO - each piece of terrain/creature/item should have an int indicating its importance and a character to be displayed.
+            Terrain wall = new Terrain("wall");
+            Terrain floor = new Terrain("floor");
+            Terrain playerTerrain = new Terrain("player");
+            Terrain rat = new Terrain("rat");
+
+            if (tile.contentsTerrain.Contains(playerTerrain))
             {
                 return "X";
             }
-            else if ( tile.contents.Contains("wall"))
+            else if (tile.contentsTerrain.Contains(wall))
             {
                 return "#";
             }
-            else if ( tile.contentsItems.inventory.Count > 0)
+            else if (tile.contentsTerrain.Contains(rat))
+            {
+                return "r";
+            }
+            else if (tile.contentsItems.inventory.Count > 0)
             {
                 return "S";
             }
-            else if ( tile.contents.Contains("floor"))
+            else if (tile.contentsTerrain.Contains(floor))
             {
                 return ".";
             }
@@ -145,12 +195,12 @@ namespace Game.Content.World
 
                 
                 // TODO - NO MAGIC STRINGS!!!
-                if(failedAttempts == 100)
+                if(failedAttempts == 1000)
                 {
                     needMoreHouses = false;
                 }
             }
-
+            
                 return map;
         }
 
@@ -200,7 +250,7 @@ namespace Game.Content.World
             }
 
             // Adds random 'loot' items to the house
-            while (rnd.Next(1, 11) > 4)
+            while (rnd.Next(1, 11) > 3)
             {
                 int lootXPos = rnd.Next(1, houseWidth-1);
                 int lootYPos = rnd.Next(1, houseHeight-1);
@@ -273,8 +323,36 @@ namespace Game.Content.World
                     };
                 return new ConsumableItem("old sock", needsChangeSock);
             }
+        }
+
+        public void WriteToFile()
+        {
+            using (System.IO.StreamWriter file =
+            new System.IO.StreamWriter(@"C:\GameLogs\SuburbanMap.txt"))
 
 
+            for (int y = height; y >= 0; y--)
+            {
+                string rowString = "";
+
+                // And for each column of that row...
+                for (int x = 0; x <= width; x++)
+                {
+                    // Add the graphic representation of that tile to a string
+                    if (x < 0 || x >= this.layout.GetLength(0) || y < 0 || y >= this.layout.GetLength(1))
+                    {
+                        rowString += " ";
+                    }
+                    else
+                    {
+                        rowString += GetTileImage(this.layout[x, y]);
+                    }
+
+                }
+
+                // When the row is complete, print it
+                file.WriteLine(rowString);
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using SurvivalGame.Content.Items;
+using SurvivalGame.Content.World.TerrainTypes;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,13 +11,18 @@ namespace SurvivalGame.Content.World
     public class Tile
     {
         // Probably want to change this to 'thing' class, which is implemented by Object and Terrain classes.
-        public List<string> contents = new List<string>();
         public Inventory contentsItems = new Inventory();
         public bool blocksMovement = false;
+        public List<Terrain> contentsTerrain = new List<Terrain>{ new Terrain("floor") };
 
-        Tile(List<string> content)
+        Tile()
         {
-            this.contents = content;
+        }
+
+        Tile(List<Terrain> contentsTerrain, Inventory contentsItems)
+        { 
+            this.contentsTerrain = contentsTerrain;
+            this.contentsItems = contentsItems;
         }
 
         // TODO - We need to think carefully about this method and CreateFloorTile. Do we definitely want them, or should something else replace them?
@@ -26,9 +31,10 @@ namespace SurvivalGame.Content.World
         /// </summary>
         /// <returns></returns>
         public static Tile CreateWallTile()
-        { 
-            List<string> wallTileContents= new List<string>(new string[] { "wall" });
-            Tile wallTile = new Tile(wallTileContents);
+        {
+            Terrain wall = new Terrain("wall");
+            Tile wallTile = new Tile();
+            wallTile.contentsTerrain.Add(wall);
             wallTile.BlockMovement();
             return wallTile;
         }
@@ -40,8 +46,7 @@ namespace SurvivalGame.Content.World
         /// <returns></returns>
         public static Tile CreateFloorTile()
         {
-            List<string> floorTileContents = new List<string>(new string[] { "floor" });
-            Tile floorTile = new Tile(floorTileContents);
+            Tile floorTile = new Tile();
             return floorTile;
         }
 
@@ -51,9 +56,10 @@ namespace SurvivalGame.Content.World
         /// <param name="tile"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public Tile AddContentToTile(Tile tile, string content)
+        public Tile AddContentToTile(Tile tile, Terrain contentTerrain, Item contentItem)
         {
-            tile.contents.Add(content);
+            tile.contentsTerrain.Add(contentTerrain);
+            tile.contentsItems.AddItemToInventory(contentItem);
             return tile;       
         }
 

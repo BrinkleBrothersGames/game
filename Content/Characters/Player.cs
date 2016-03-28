@@ -1,5 +1,6 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Items;
+using SurvivalGame.Content.World.TerrainTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,7 @@ namespace SurvivalGame.Content.Characters
         {
             this.playerXCoord = coords[0];
             this.playerYCoord = coords[1];
+
         }
 
         public int[] GetPlayerCoords()
@@ -53,15 +55,17 @@ namespace SurvivalGame.Content.Characters
                 return false;
             }
 
+            Terrain playerTerrain = new Terrain("player");
+
             // Remove the player from their old position on the map
-            map.layout[player.playerXCoord, player.playerYCoord].contents.Remove("player");
+            map.layout[player.playerXCoord, player.playerYCoord].contentsTerrain.Remove(playerTerrain);
 
             // Set the player's coords to their new position
             player.SetPlayerCoords(newCoords);
 
             // Update map to reflect new position
 
-            map.layout[player.playerXCoord, player.playerYCoord].contents.Add("player");
+            map.layout[player.playerXCoord, player.playerYCoord].contentsTerrain.Add(playerTerrain);
 
             return true;
         }
