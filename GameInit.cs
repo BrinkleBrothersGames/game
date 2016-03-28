@@ -37,7 +37,7 @@ namespace Game
             // Initialised and assigned here to account for player not taking specific action
             int[] playerCoords = player.GetPlayerCoords();
             int timeTaken = 0;
-            
+
             string[] splitAction = actionLong.Split(' ');
             string action = splitAction[0];
             // TODO - change this to 'actionPassed' or something, use for special case for failure of all actions
@@ -46,18 +46,18 @@ namespace Game
             switch (action)
             {
                 case ("w"):
-                    playerCoords[0] -= 1;
-                    break;
-                case ("s"):
-                    playerCoords[0] += 1;
-                    break;
-                case ("a"):
-                    playerCoords[1] -= 1;
-                    break;
-                case ("d"):
                     playerCoords[1] += 1;
                     break;
-                    // TODO - these 'movement' commands shouldn't work this way. Should call method themselves with the new value
+                case ("s"):
+                    playerCoords[1] -= 1;
+                    break;
+                case ("a"):
+                    playerCoords[0] -= 1;
+                    break;
+                case ("d"):
+                    playerCoords[0] += 1;
+                    break;
+                // TODO - these 'movement' commands shouldn't work this way. Should call method themselves with the new value
                 case ("status"):
                     player.GetStatus();
                     break;
@@ -141,7 +141,7 @@ namespace Game
                     int sleepTime = 10 - player.needs.tirednessLevel;
                     player.needs.UpdateNeeds(10, "tiredness");
                     clock.AddTime(sleepTime * 20);
-                    Console.WriteLine("You sleep for " + (sleepTime*20).ToString() + " time units.");
+                    Console.WriteLine("You sleep for " + (sleepTime * 20).ToString() + " time units.");
                     break;
                 case ("inv"):
                     player.inv.PrintInventory();
@@ -159,11 +159,11 @@ namespace Game
 
             // TODO - Ouch! Move the update player position to only where it's relevant!
 
-            if(player.UpdatePlayerPosition(currentLevel, player, playerCoords))
+            if (player.UpdatePlayerPosition(currentLevel, player, playerCoords))
             {
                 timeTaken = 2;
             }
-      
+
             clock.AddTime(timeTaken);
 
         }
@@ -172,19 +172,24 @@ namespace Game
         {
             // TODO - the GameInit initialize class should really do all this
             Map currentLevel = new Map();
+            currentLevel.WriteToFile();
             Inventory inv = new Inventory();
-            Player player = new Player(1, 1, inv);
-            player.UpdatePlayerPosition(currentLevel, player, new int[] {1,1});
+            Player player = new Player(15, 15, inv);
+            player.UpdatePlayerPosition(currentLevel, player, new int[] { 15, 15 });
             Clock clock = new Clock(player);
             GameInit game = new GameInit(currentLevel, player, clock);
             game.run = true;
             string input;
 
             while (game.run)
-            {
+            { 
+                // TODO - move this to where it makes sense
+                // Creatures present on the map make their move
+                currentLevel.DoCreatureActions();
+                
                 // Render changes to map
                 // TODO - shouldn't have to pass 'currentLevel' twice
-                currentLevel.RenderMap(currentLevel);
+                currentLevel.RenderMap(currentLevel, player);
 
                 // Wait for player to take action
                 input = Console.ReadLine();
@@ -205,8 +210,8 @@ namespace Game
             }
         }
 
-// TODO - MUCH LATER - For collisions, consider adding 'blockMovement' bool to our place vector.
-// TODO - DURING REFACTOR - Hide everything in get/set methods. 
+        // TODO - MUCH LATER - For collisions, consider adding 'blockMovement' bool to our place vector.
+        // TODO - DURING REFACTOR - Hide everything in get/set methods. 
 
     }
 }

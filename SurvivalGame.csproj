@@ -43,18 +43,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Content\Characters\AI\SimpleAI.cs" />
+    <Compile Include="Content\Characters\AI\State.cs" />
+    <Compile Include="Content\Characters\Creature.cs" />
     <Compile Include="Content\Characters\Needs.cs" />
     <Compile Include="Content\Characters\Player.cs" />
     <Compile Include="Content\Items\ConsumableItem.cs" />
     <Compile Include="Content\Items\Inventory.cs" />
     <Compile Include="Content\Items\Item.cs" />
     <Compile Include="Content\World\Map.cs" />
+    <Compile Include="Content\World\TerrainTypes\Terrain.cs" />
     <Compile Include="Content\World\Tile.cs" />
     <Compile Include="Engine\Time\Clock.cs" />
     <Compile Include="Engine\Time\Event.cs" />
     <Compile Include="GameInit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\DebugCommands.cs" />
+    <Compile Include="Utils\MapUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
