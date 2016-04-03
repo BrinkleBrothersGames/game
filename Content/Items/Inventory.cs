@@ -22,6 +22,18 @@ namespace SurvivalGame.Content.Items
             this.inventory = contents;
         }
 
+        public Item GetItemByName(string wantedItemName)
+        {
+            foreach(Item item in inventory.Keys)
+            {
+                if (item.name.Equals(wantedItemName))
+                {
+                    return item;
+                }
+            }
+            return null;         
+        }
+
         public void AddItemToInventory(Item item)
         {
             // If dictionary contains item, increase count by 1. Else add item to inventory.

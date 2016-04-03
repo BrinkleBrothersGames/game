@@ -1,4 +1,5 @@
-﻿using SurvivalGame.Content.Characters;
+﻿using Game.Content.World;
+using SurvivalGame.Content.Characters;
 using System.Collections.Generic;
 
 namespace SurvivalGame.Engine
@@ -13,16 +14,19 @@ namespace SurvivalGame.Engine
         {
             {"incrementHunger", 100},
             {"incrementThirst", 50},
-            {"incrementTiredness", 150}
+            {"incrementTiredness", 150},
+            {"updateCreatureNeeds", 250}
         };
 
         private int time;
         public Player player;
+        public Map map;
 
-        public Clock(Player player)
+        public Clock(Player player, Map map)
         {
             time = 0;
             this.player = player;
+            this.map = map;
         }
 
         public void SetTime(int newTime)
@@ -70,6 +74,18 @@ namespace SurvivalGame.Engine
                             break;
                         case ("incrementTiredness"):
                             player.needs.UpdateNeeds(-1, "tiredness");
+                            break;
+                        case ("updateCreatureNeeds"):
+                            foreach(Creature creature in map.presentCreatures)
+                            {
+                                creature.UpdateCreatureNeeds(new Dictionary<string, int>()
+                                {
+                                    {"hunger", -1},
+                                    {"thirst", -1},
+                                    {"tiredness", -1}
+
+                                });
+                            }
                             break;
                     }
                 }

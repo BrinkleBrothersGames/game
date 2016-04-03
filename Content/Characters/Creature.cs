@@ -1,5 +1,6 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Characters.AI;
+using SurvivalGame.Content.Items;
 using SurvivalGame.Content.World.TerrainTypes;
 using SurvivalGame.Utils;
 using System;
@@ -12,6 +13,7 @@ namespace SurvivalGame.Content.Characters
 {
     public class Creature
     {
+        public Inventory inv = new Inventory();
         public string name;
         public SimpleAI ai;
         public Needs needs = new Needs();
@@ -50,7 +52,11 @@ namespace SurvivalGame.Content.Characters
 
             return true;
         }
-
-        // STUBBED OUT UNTIL AI IMPLEMENTED
+        
+        public void UpdateCreatureNeeds(Dictionary<string, int> needsDictionary)
+        {
+            this.needs.UpdateNeeds(needsDictionary);
+        }
+        
     }
 }

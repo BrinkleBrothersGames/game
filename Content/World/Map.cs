@@ -23,25 +23,25 @@ namespace Game.Content.World
         /// </summary>
         public Map()
         {
-            //height = rnd.Next(101, 151);
-            //width = rnd.Next(101, 151);
-            height = 20;
-            width = 20;
+            height = rnd.Next(101, 151);
+            width = rnd.Next(101, 151);
+            //height = 20;
+            //width = 20;
             layout = GenerateSuburbsMap(width, height);
             Creature rat = new Creature("rat", new int[] { 5, 5 });
             presentCreatures.Add(rat);
-            rat.UpdatePosition(this, new int[] { 5, 5 });
-
-           // for(int i = 0; i < 50; i++)
-           // {
-           //     Creature ratBaby = new Creature("rat", new int[] { 0, 0});
-           //     presentCreatures.Add(ratBaby);
-           // }
+            rat.UpdatePosition(this, new int[] { 9, 7 });
+            rat.needs.hungerLevel = 2;
+            for(int i = 0; i < 50; i++)
+            {
+                Creature ratBaby = new Creature("rat", new int[] { 0, 0});
+                presentCreatures.Add(ratBaby);
+            }
            //
-           // foreach(Creature creature in presentCreatures)
-           // {
-           //     creature.UpdatePosition(this, new int[] { rnd.Next(10, width), rnd.Next(10, height) });
-           // }
+            foreach(Creature creature in presentCreatures)
+            {
+                creature.UpdatePosition(this, new int[] { rnd.Next(10, width), rnd.Next(10, height) });
+            }
         }
 
         public void DoCreatureActions()
@@ -51,6 +51,28 @@ namespace Game.Content.World
                 creature.ai.Update(this);
                 creature.DecideAction();
             }
+        }
+
+        /// <summary>
+        /// Removes an item from a map's tile, and places it in an inventory
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="inv"></param>
+        /// <param name="coords"></param>
+        /// <returns></returns>
+        public bool GetItemFromMap(string item, Inventory inv, int[] coords)
+        {
+            foreach (Item mapItem in layout[coords[0], coords[1]].contentsItems.inventory.Keys)
+            {
+                if (mapItem.name == item)
+                {
+                    layout[coords[0], coords[1]].contentsItems.RemoveItemFromInventory(mapItem);
+                    inv.AddItemToInventory(mapItem);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         // TODO this should be moved to some kind of graphics class - in Engine or Utils. Fine here for now.
