@@ -48,6 +48,8 @@
     <Compile Include="Content\Characters\Creature.cs" />
     <Compile Include="Content\Characters\Needs.cs" />
     <Compile Include="Content\Characters\Player.cs" />
+    <Compile Include="Content\Characters\PlayerSetupClass.cs" />
+    <Compile Include="Content\Characters\Stats.cs" />
     <Compile Include="Content\Items\ConsumableItem.cs" />
     <Compile Include="Content\Items\Inventory.cs" />
     <Compile Include="Content\Items\Item.cs" />

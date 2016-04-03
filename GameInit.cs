@@ -96,14 +96,22 @@ namespace Game
                     }
                     break;
                 case ("get"):
-                    bool gotItem = currentLevel.GetItemFromMap(splitAction[1], player.inv, player.GetPlayerCoords());
-                    if (gotItem)
+                    hasItem = true;
+
+                    foreach (Item mapItem in currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.inventory.Keys)
                     {
+                        if (mapItem.name == splitAction[1])
+                        {
+                            currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.RemoveItemFromInventory(mapItem);
                             Console.WriteLine("You take a " + splitAction[1] + " from the floor.");
+                            player.inv.AddItemToInventory(mapItem);
+                            hasItem = false;
+                            break;
+                        }
                     }
-                    else
+                    if (hasItem)
                     {
-                        Console.WriteLine("You can't see a " + splitAction[1] + " nearby. You don't get anything.");
+                        Console.WriteLine("You don't have a " + splitAction[1] + " in your inventory. You don't drop anything.");
                     }
                     break;
                 case ("use"):
@@ -159,7 +167,7 @@ namespace Game
             clock.AddTime(timeTaken);
 
         }
-
+        
         static void Main()
         {
             // TODO - the GameInit initialize class should really do all this
@@ -172,6 +180,9 @@ namespace Game
             GameInit game = new GameInit(currentLevel, player, clock);
             game.run = true;
             string input;
+
+            PlayerSetupClass setupPlayer = new PlayerSetupClass();
+            setupPlayer.PlayerSetup(player);
 
             while (game.run)
             { 

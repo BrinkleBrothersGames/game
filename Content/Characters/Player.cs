@@ -15,6 +15,7 @@ namespace SurvivalGame.Content.Characters
         int playerYCoord;
         public Inventory inv;
         public Needs needs;
+        public Stats stats;
         
         public Player(int x, int y, Inventory inv)
         {
@@ -22,7 +23,7 @@ namespace SurvivalGame.Content.Characters
             this.playerYCoord = y;
             this.inv = inv;
             this.needs = new Needs();
-
+            this.stats = new Stats();
         }
 
         public void SetPlayerCoords(int x, int y)
@@ -79,6 +80,16 @@ namespace SurvivalGame.Content.Characters
             this.needs.UpdateNeeds(needsDictionary);
         }
         
+        /// <summary>
+        /// Changes the inputted stat by the inputted amount
+        /// </summary>
+        /// <param name="stat"></param>
+        /// <param name="amount"></param>
+        public void ChangePlayerStats(string stat, int amount)
+        {
+            this.stats.ChangeStats(stat, amount);
+        }
+
         // TODO - Should this be here, or in the 'needs' class
         /// <summary>
         /// Prints the player's hunger, thirst, tiredness and health to the console.
@@ -93,7 +104,7 @@ namespace SurvivalGame.Content.Characters
             
             Console.WriteLine("Health: " + this.needs.health.ToString() + "/" + this.needs.MAX_HEALTH.ToString());
         }
-
+        
         /// <summary>
         /// Returns true if player health is greater than zero, and false otherwise.
         /// </summary>
