@@ -23,20 +23,20 @@ namespace Game.Content.World
         /// </summary>
         public Map()
         {
-            height = rnd.Next(101, 151);
-            width = rnd.Next(101, 151);
-            //height = 20;
-            //width = 20;
+            //height = rnd.Next(101, 151);
+            //width = rnd.Next(101, 151);
+            height = 20;
+            width = 20;
             layout = GenerateSuburbsMap(width, height);
             Creature rat = new Creature("rat", new int[] { 5, 5 });
             presentCreatures.Add(rat);
             rat.UpdatePosition(this, new int[] { 9, 7 });
             rat.needs.hungerLevel = 2;
-            for(int i = 0; i < 50; i++)
-            {
-                Creature ratBaby = new Creature("rat", new int[] { 0, 0});
-                presentCreatures.Add(ratBaby);
-            }
+           // for(int i = 0; i < 50; i++)
+           // {
+           //     Creature ratBaby = new Creature("rat", new int[] { 0, 0});
+           //     presentCreatures.Add(ratBaby);
+           // }
            //
             foreach(Creature creature in presentCreatures)
             {
