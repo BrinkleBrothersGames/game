@@ -49,7 +49,9 @@
     <Compile Include="Content\Characters\Needs.cs" />
     <Compile Include="Content\Characters\Player.cs" />
     <Compile Include="Content\Characters\PlayerSetupClass.cs" />
+    <Compile Include="Content\Characters\Skill.cs" />
     <Compile Include="Content\Characters\Stats.cs" />
+    <Compile Include="Content\Characters\TemporaryStats.cs" />
     <Compile Include="Content\Items\ConsumableItem.cs" />
     <Compile Include="Content\Items\Inventory.cs" />
     <Compile Include="Content\Items\Item.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="Content\World\Tile.cs" />
     <Compile Include="Engine\PlayerInput.cs" />
     <Compile Include="Engine\Time\Clock.cs" />
+    <Compile Include="Engine\Time\Effect.cs" />
     <Compile Include="Engine\Time\Event.cs" />
     <Compile Include="GameInit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

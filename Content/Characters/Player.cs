@@ -16,6 +16,7 @@ namespace SurvivalGame.Content.Characters
         public Inventory inv;
         public Needs needs;
         public Stats stats;
+        public TemporaryStats tempStats;
         
         public Player(int x, int y, Inventory inv)
         {
@@ -24,6 +25,7 @@ namespace SurvivalGame.Content.Characters
             this.inv = inv;
             this.needs = new Needs();
             this.stats = new Stats();
+            this.tempStats = new TemporaryStats(stats);
         }
 
         public void SetPlayerCoords(int x, int y)

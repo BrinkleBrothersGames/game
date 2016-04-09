@@ -1,5 +1,6 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Characters;
+using SurvivalGame.Engine.Time;
 using System.Collections.Generic;
 
 namespace SurvivalGame.Engine
@@ -9,6 +10,7 @@ namespace SurvivalGame.Engine
     {
         // TODO - We need to play around with this value to get the right 'day length'. Not urgent now.
         int TIME_IN_DAY = 1000;
+        List<Effect> effectList = new List<Effect>();
         // Contains an event name, and an integer representing how often it should occur
         Dictionary<string, int> TIMED_EVENTS = new Dictionary<string, int>()
         {
@@ -48,6 +50,7 @@ namespace SurvivalGame.Engine
                 timeIncrement -= 1;
 
                 CheckForTimedEvents();
+                UpdateEffects();
             }
 
             if(time > TIME_IN_DAY)
@@ -59,6 +62,9 @@ namespace SurvivalGame.Engine
 
         public void CheckForTimedEvents()
         {
+            Dictionary<string, int> needChange = new Dictionary<string, int>();
+            bool updateStats = false;
+
             // Check for all timed events
             foreach(string eventName in TIMED_EVENTS.Keys)
             {
@@ -67,13 +73,16 @@ namespace SurvivalGame.Engine
                     switch (eventName)
                     {
                         case ("incrementHunger"):
-                            player.needs.UpdateNeeds(-1, "hunger");
+                            needChange.Add("hunger", -1);
+                            updateStats = true;
                             break;
                         case ("incrementThirst"):
-                            player.needs.UpdateNeeds(-1, "thirst");
+                            needChange.Add("thirst", -1);
+                            updateStats = true;
                             break;
                         case ("incrementTiredness"):
-                            player.needs.UpdateNeeds(-1, "tiredness");
+                            needChange.Add("tiredness", -1);
+                            updateStats = true;
                             break;
                         case ("updateCreatureNeeds"):
                             foreach(Creature creature in map.presentCreatures)
@@ -83,13 +92,39 @@ namespace SurvivalGame.Engine
                                     {"hunger", -1},
                                     {"thirst", -1},
                                     {"tiredness", -1}
-
                                 });
                             }
                             break;
                     }
                 }
             }
+
+            if (updateStats)
+            {
+                player.UpdatePlayerNeeds(needChange);
+            }
+        }
+
+        public void UpdateEffects()
+        {
+            foreach(Effect effect in effectList.ToArray())
+            {
+                effect.DecreaseDuration(1);
+
+                if(effect.duration == 0)
+                {
+                    effect.RemoveEffect(player);
+
+                    effectList.Remove(effect);
+                }
+            }
+        }
+
+        public void AddTimedEffect(Effect effect)
+        {
+            effect.ApplyEffect();
+
+            effectList.Add(effect);
         }
     }
 }

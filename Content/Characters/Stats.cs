@@ -8,6 +8,7 @@ namespace SurvivalGame.Content.Characters
 {
     public class Stats
     {
+        // TODO - make these private. We want to use TemporaryStats, and it's a good way to avoid accidentally calling the wrong ones
         public int strength;
         public int endurance;
         public int agility;
@@ -71,7 +72,6 @@ namespace SurvivalGame.Content.Characters
                 default:
                     break;
             }
-
         }
 
         // TODO - Change this to return -1 if stat not found

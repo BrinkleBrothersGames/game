@@ -61,6 +61,14 @@ namespace SurvivalGame.Utils
             {
                 GiveFoodItems(player);
             }
+            else if ((splitAction[0].Contains("getstrength")))
+            {
+                Console.WriteLine("Strength is: " + player.stats.strength.ToString());
+            }
+            else if ((splitAction[0].Contains("addstrengtheffect")))
+            {
+                clock.AddTimedEffect(new Engine.Time.Effect(200, new Dictionary<string, int>() { { "strength", 5 } }, player));
+            }
         }
 
         public static void runInvTest1(Player player)
