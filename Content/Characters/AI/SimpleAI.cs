@@ -64,7 +64,8 @@ namespace SurvivalGame.Content.Characters.AI
 
             if (aggressive)
             {
-                ChooseFight();
+                // TODO - here, should check if it can see the player. If not, move down priority. Use 'IsThreatened'
+                Fight();
             }
             else if (IsInDanger() || (IsInjured() && IsThreatened()))
             {
@@ -74,7 +75,7 @@ namespace SurvivalGame.Content.Characters.AI
                 }
                 else
                 {
-                    ChooseFight();
+                    Fight();
                 }
             }
             else if (IsThirsty()) // If thirsty, seek a drink
@@ -151,7 +152,7 @@ namespace SurvivalGame.Content.Characters.AI
 
             foreach(Coords tileCoords in adjacentTiles)
             {
-                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.positionArray, targetCoords);
+                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.GetCoordsArray(), targetCoords);
                 
                 if((perceivableTiles[tileCoords.x, tileCoords.y]!=null) && !(perceivableTiles[tileCoords.x, tileCoords.y].blocksMovement) && (newThreatDistance > currentThreatDistance))
                 {
@@ -306,7 +307,7 @@ namespace SurvivalGame.Content.Characters.AI
 
                 foreach (Coords tileCoords in adjacentTiles)
             {
-                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.positionArray, targetCoords);
+                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.GetCoordsArray(), targetCoords);
 
                 if ((perceivableTiles[tileCoords.x, tileCoords.y]!=null) && !(perceivableTiles[tileCoords.x, tileCoords.y].blocksMovement) && (newThreatDistance > currentThreatDistance))
                 {
@@ -321,7 +322,7 @@ namespace SurvivalGame.Content.Characters.AI
         /// When the creature chooses to fight, it will attack if possible, otherwise it will move towards its target (the player).
         /// </summary>
         /// <param name="targetCoords">Coords of the target to attack</param>
-        public void ChooseFight()
+        public void Fight()
         {        
             Coords creatureCoords = new Coords(creature.position);
             Coords playerCoords = new Coords(player.GetPlayerCoords());
@@ -443,7 +444,7 @@ namespace SurvivalGame.Content.Characters.AI
                 if ((perceivableTiles[tileCoords.x, tileCoords.y] != null) && (!perceivableTiles[tileCoords.x, tileCoords.y].blocksMovement))
                 {
                     // If current tile has been visited recently, weigh more strongly for less curious creatures.
-                    if (previouslyVisitedTiles.Contains(MapUtils.ConvertPerceivableMapCoordsToMapCoords(tileCoords.positionArray, perceivableTiles, map, creature.position)))
+                    if (previouslyVisitedTiles.Contains(MapUtils.ConvertPerceivableMapCoordsToMapCoords(tileCoords.GetCoordsArray(), perceivableTiles, map, creature.position)))
                     {
                         // TODO - the 10 should be set in a global variable as "MAX_CURIOSITY" or something. May want to do this differently.
                         weight += 2*(10 - curiosity);
@@ -453,7 +454,7 @@ namespace SurvivalGame.Content.Characters.AI
                         weight += curiosity;
                     }
 
-                    weightDictionary.Add(tileCoords.positionArray, weight);
+                    weightDictionary.Add(tileCoords.GetCoordsArray(), weight);
                 }
             }
 
