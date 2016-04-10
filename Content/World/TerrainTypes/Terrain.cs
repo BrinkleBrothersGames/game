@@ -15,9 +15,7 @@ namespace SurvivalGame.Content.World.TerrainTypes
         {
             this.name = name;
         }
-
-
-
+        
         public override bool Equals(object obj)
         {
             // If parameter cannot be cast to Point return false.

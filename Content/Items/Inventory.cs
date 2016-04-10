@@ -11,10 +11,12 @@ namespace SurvivalGame.Content.Items
         // TODO - should have method for adding many items. Should take input is Dictionary<Item, int>()
 
         // Contains item and the number of it the player has in their inventory
+
         public Dictionary<Item, int> inventory = new Dictionary<Item, int>() { };
 
         public Inventory()
-        {   
+        {
+
         }
 
         public Inventory(Dictionary<Item, int> contents)

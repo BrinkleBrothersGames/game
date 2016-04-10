@@ -156,6 +156,10 @@ namespace Game
                 case ("exit"):
                     run = false;
                     break;
+                case ("attack"):
+                    Fight fight = new Fight();
+                    fight.PlayerAttackScreen(player, currentLevel);
+                    break;
                 default:
                     // TryDebugAction for testing only. Should be removed in release versions.
                     DebugCommands.TryDebugAction(actionLong, clock, player, currentLevel);
@@ -182,11 +186,14 @@ namespace Game
 
             game.currentLevel.WriteToFile();
 
+            // TODO - Add enumerator for inventory class.
+
             while (game.run)
             { 
                 // TODO - move this to where it makes sense
+                // TODO - this shouldn't take player
                 // Creatures present on the map make their move
-                game.currentLevel.DoCreatureActions();
+                game.currentLevel.DoCreatureActions(game.player);
                 
                 // Render changes to map
                 // TODO - shouldn't have to pass 'currentLevel' twice

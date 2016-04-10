@@ -34,11 +34,10 @@ namespace SurvivalGame.Content.Characters
 
         void ConfirmPlayerStats()
         {
-            points = 0;
             bool choiceNotConfirmed = true;
 
             player.ChangePlayerStats(stat, amount);
-            points -= amount;
+            
 
             while (choiceNotConfirmed)
             {
@@ -52,12 +51,12 @@ namespace SurvivalGame.Content.Characters
                     case "n":
                     case "no":
                         player.ChangePlayerStats(stat, -amount);
-                        points += amount;
                         choiceNotConfirmed = false;
                         break;
                     case "y":
                     case "yes":
                         choiceNotConfirmed = false;
+                        points -= amount;
                         break;
                     default:
                         Console.WriteLine("Invalid response.");
@@ -92,7 +91,7 @@ namespace SurvivalGame.Content.Characters
                 bool invalidStat = (Stats.GetStat(stat, player) == -1);
                 
                 /// Checks if inputs are valid before conditionally changing stats, to save time if input is invalid.
-                if (invalidInputPoints && invalidStat)
+                if (invalidInputPoints || invalidStat)
                 {
                     Console.WriteLine("Type valid stat (all lower case), followed by number.");
                 }

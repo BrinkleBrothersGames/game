@@ -14,7 +14,7 @@ namespace Game.Content.World
         public int height;
         public int width;
         public Tile[,] layout;
-        public const int SEED = 123456789;
+        public const int SEED = 68800;
         Random rnd = new Random(SEED);
         public List<Creature> presentCreatures = new List<Creature>();
 
@@ -44,14 +44,51 @@ namespace Game.Content.World
             }
         }
 
-        public void DoCreatureActions()
+        public void DoCreatureActions(Player player)
         {
             foreach(Creature creature in presentCreatures)
             {
-                creature.ai.Update(this);
+                // TODO - this shouldn't take player. AI should find player if player nearby. 
+                creature.ai.Update(this, player);
                 creature.DecideAction();
             }
         }
+        
+        /// <summary>
+        /// Removes dead creatures from map, and adds a corpse along with any items in the creatures inventory to the inventory of the tile.
+        /// </summary>
+        /// <param name="map"></param>
+        public static void RemoveDeadCreature(Map map, Creature creature)
+        {
+            
+            if (!creature.needs.isAlive)
+            {
+                Item creatureCorpse = new Item(creature.name + " corpse");
+
+                Tile creatureTile = map.layout[creature.position[0], creature.position[1]];
+         
+                creatureTile.contentsItems.AddItemToInventory(creatureCorpse);
+           
+                foreach (KeyValuePair<Item, int> entry in creature.inv.inventory)
+                {
+                    //TODO This for loop should be replaced with a statement to be written in inventory, which can add multiple items.
+                    for (int i = 1; i <= entry.Value; i++)
+                    {
+                        creatureTile.contentsItems.AddItemToInventory(entry.Key);
+                    }
+                
+                }
+
+                map.presentCreatures.Remove(creature);
+
+                Terrain rat = new Terrain("rat");
+
+                creatureTile.contentsTerrain.Remove(rat);
+
+
+            }
+        }
+        
 
         /// <summary>
         /// Removes an item from a map's tile, and places it in an inventory
@@ -119,7 +156,7 @@ namespace Game.Content.World
             // TODO - each piece of terrain/creature/item should have an int indicating its importance and a character to be displayed.
             Terrain wall = new Terrain("wall");
             Terrain floor = new Terrain("floor");
-            Terrain playerTerrain = new Terrain("player");
+            Terrain playerTerrain = new Terrain("player");            
             Terrain rat = new Terrain("rat");
 
             if (tile.contentsTerrain.Contains(playerTerrain))
@@ -375,6 +412,7 @@ namespace Game.Content.World
                 // When the row is complete, print it
                 file.WriteLine(rowString);
             }
+            
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Items;
+using SurvivalGame.Content.World;
 using SurvivalGame.Content.World.TerrainTypes;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,6 @@ namespace SurvivalGame.Content.Characters
         {
             this.playerXCoord = coords[0];
             this.playerYCoord = coords[1];
-
         }
 
         public int[] GetPlayerCoords()
