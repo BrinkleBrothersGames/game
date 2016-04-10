@@ -10,6 +10,7 @@ namespace SurvivalGame.Content.World.TerrainTypes
     {
         public string name;
         public bool blocksMovement = false;
+        public Coords coords;
 
         public Terrain(string name)
         {

@@ -1,6 +1,7 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Characters.AI;
 using SurvivalGame.Content.Items;
+using SurvivalGame.Content.World;
 using SurvivalGame.Content.World.TerrainTypes;
 using SurvivalGame.Utils;
 using System;
@@ -17,13 +18,17 @@ namespace SurvivalGame.Content.Characters
         public string name;
         public SimpleAI ai;
         public Needs needs = new Needs();
+        public Stats stats = new Stats();
+        public Coords coords;
         public int[] position;
 
+        
         public Creature(string name, int[] position)
         {
             this.name = name;
             this.position = position;
             ai = new SimpleAI(this);
+            this.coords = new Coords(position);            
         }
 
         public void DecideAction()

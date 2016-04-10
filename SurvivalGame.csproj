@@ -45,7 +45,9 @@
   <ItemGroup>
     <Compile Include="Content\Characters\AI\SimpleAI.cs" />
     <Compile Include="Content\Characters\AI\State.cs" />
+    <Compile Include="Content\Characters\Character.cs" />
     <Compile Include="Content\Characters\Creature.cs" />
+    <Compile Include="Content\Characters\Fight.cs" />
     <Compile Include="Content\Characters\Needs.cs" />
     <Compile Include="Content\Characters\Player.cs" />
     <Compile Include="Content\Characters\PlayerSetupClass.cs" />

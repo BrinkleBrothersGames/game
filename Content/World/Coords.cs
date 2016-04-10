@@ -11,21 +11,27 @@ namespace SurvivalGame.Content.World
         public int x;
         public int y;
 
+        public int[] positionArray;
+
         public Coords(int x, int y)
         {
             this.x = x;
             this.y = y;
+
+            positionArray = new int[] {x, y};
         }
 
         public Coords(int[] coords)
         {
             this.x = coords[0];
             this.y = coords[1];
+
+            positionArray = coords;
         }
 
         public int[] GetCoordsArray()
         {
-            return new int[] { x, y };
+            return positionArray;
         }
         
         public override bool Equals(object obj)

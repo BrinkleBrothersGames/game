@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Game.Content.World;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -176,6 +177,21 @@ namespace SurvivalGame.Content.Characters
         }
 
         /// <summary>
+        /// Updates the creature's health, then removes the creature if it dies.
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <param name="map"></param>
+        /// <param name="creature"></param>
+        public void UpdateCreatureHealth(int amount, Map map, Creature creature)
+        {
+            this.health += amount;
+
+            CheckHealthLimit();
+
+            Map.RemoveDeadCreature(map, creature);
+        }
+
+        /// <summary>
         /// Checks the health. If too high, lowers it. If zero or less, changes isAlive to false.
         /// </summary>
         public void CheckHealthLimit()
@@ -187,6 +203,7 @@ namespace SurvivalGame.Content.Characters
             else if (this.health <= 0)
             {
                 this.isAlive = false;
+
             }
         }
     }

@@ -23,11 +23,18 @@ namespace Game
         /// </summary>
         /// <param name="currentLevel">The currently loaded Map</param>
         /// <param name="player">The player character</param>
-        public GameInit(Map currentLevel, Player player, Clock clock)
+        public GameInit()
         {
-            this.currentLevel = currentLevel;
-            this.player = player;
-            this.clock = clock;
+            this.currentLevel = new Map();
+            Inventory inv = new Inventory();
+            this.player = new Player(15, 15, inv);
+            this.clock = new Clock(player, currentLevel);
+            this.run = true;
+
+            PlayerSetupClass setupPlayer = new PlayerSetupClass();
+            setupPlayer.PlayerSetup(player);
+
+            player.UpdatePlayerPosition(currentLevel, player, new int[] { 15, 15 });
         }
 
         // TODO - Should probably go in a player control class or something
@@ -149,6 +156,10 @@ namespace Game
                 case ("exit"):
                     run = false;
                     break;
+                case ("attack"):
+                    Fight fight = new Fight();
+                    fight.PlayerAttackScreen(player, currentLevel);
+                    break;
                 default:
                     // TryDebugAction for testing only. Should be removed in release versions.
                     DebugCommands.TryDebugAction(actionLong, clock, player, currentLevel);
@@ -170,29 +181,22 @@ namespace Game
         
         static void Main()
         {
-            // TODO - the GameInit initialize class should really do all this
-            Map currentLevel = new Map();
-            currentLevel.WriteToFile();
-            Inventory inv = new Inventory();
-            Player player = new Player(15, 15, inv);
-            player.UpdatePlayerPosition(currentLevel, player, new int[] { 15, 15 });
-            Clock clock = new Clock(player, currentLevel);
-            GameInit game = new GameInit(currentLevel, player, clock);
-            game.run = true;
+            GameInit game = new GameInit();
             string input;
 
-            PlayerSetupClass setupPlayer = new PlayerSetupClass();
-            setupPlayer.PlayerSetup(player);
+            game.currentLevel.WriteToFile();
+
+            // TODO - Add enumerator for inventory class.
 
             while (game.run)
             { 
                 // TODO - move this to where it makes sense
                 // Creatures present on the map make their move
-                currentLevel.DoCreatureActions();
+                game.currentLevel.DoCreatureActions(game.player);
                 
                 // Render changes to map
                 // TODO - shouldn't have to pass 'currentLevel' twice
-                currentLevel.RenderMap(currentLevel, player);
+                game.currentLevel.RenderMap(game.currentLevel, game.player);
 
                 // Wait for player to take action
                 input = Console.ReadLine();
@@ -204,7 +208,7 @@ namespace Game
                 game.doPlayerAction(input);
 
                 // If player is dead, end the game
-                if (!player.IsPlayerAlive())
+                if (!game.player.IsPlayerAlive())
                 {
                     Console.WriteLine("You have died. Well done.");
                     game.run = false;

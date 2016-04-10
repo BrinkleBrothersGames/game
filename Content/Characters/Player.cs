@@ -1,5 +1,6 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Items;
+using SurvivalGame.Content.World;
 using SurvivalGame.Content.World.TerrainTypes;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace SurvivalGame.Content.Characters
         public Inventory inv;
         public Needs needs;
         public Stats stats;
+        public Coords coords;
         
         public Player(int x, int y, Inventory inv)
         {
@@ -24,12 +26,14 @@ namespace SurvivalGame.Content.Characters
             this.inv = inv;
             this.needs = new Needs();
             this.stats = new Stats();
+            this.coords = new Coords(x, y);
         }
 
         public void SetPlayerCoords(int x, int y)
         {
             this.playerXCoord = x;
             this.playerYCoord = y;
+            this.coords = new Coords(x, y);
         }
 
         // TODO - should implement 0-1-infinity rule here too - should we?
@@ -37,7 +41,7 @@ namespace SurvivalGame.Content.Characters
         {
             this.playerXCoord = coords[0];
             this.playerYCoord = coords[1];
-
+            this.coords = new Coords(coords[0], coords[1]);
         }
 
         public int[] GetPlayerCoords()

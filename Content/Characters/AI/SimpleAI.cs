@@ -10,16 +10,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SurvivalGame.Content.Characters.AI
-{
+{    
+
     // TODO - For more advanced AI capable of better route-finding, should store a list of squares the creature has previously visited. This would be its 'memory', and could help avoid repeated movements. Length of memory should be based on creature's intelligence.
     // TODO - Useful methods would include: coord creator in MapUtils; perceivableTiles -> map.layout translator; IsValidMove(int[], map),  two functions (?) determine whether a square is in the bounds of the map and another one determines whether a square blockMovement
     // The Simple AI class represents a dumb animal. It will seek safety, then to satisfy its needs. No complex or interesting behaviour.
     public class SimpleAI
-    {
+    {        
         // TODO - these contants should be replaced with values derived from stats, when stats are implemented.
         int creatureIntelligence = 20; // Used in pathfinding
         int curiosity = 2; // Used in determining liklihood of movement when idle (how likely the monster is to wander around when 'bored'). Should be between 0/10. May need to think more carefully about this in future.
         int perception = 5;
+        bool aggressive = true;
 
         int[] targetCoords; // The coords of the AI's current target. Can be an enemy to flee from/attack or food/drink, etc.
         List<Coords> adjacentTiles;
@@ -27,8 +29,11 @@ namespace SurvivalGame.Content.Characters.AI
         Tile[,] perceivableTiles;
         Dictionary<int[], List<ConsumableItem>> perceivableConsumableItems = new Dictionary<int[], List<ConsumableItem>>();
         Creature creature;
+        // TODO - Replace wich 'character', which can be player or creature.
+        Player player;
         Map map;
         Random rnd = new Random(Map.SEED);
+        
 
         public SimpleAI(Creature creature)
         {
@@ -40,9 +45,10 @@ namespace SurvivalGame.Content.Characters.AI
             this.creature = creature;
         }
 
-        public void Update(Map map)
+        public void Update(Map map, Player player)
         {
             this.map = map;
+            this.player = player;
         }
 
         // Core logic for choosing an action
@@ -54,7 +60,13 @@ namespace SurvivalGame.Content.Characters.AI
             perceivableConsumableItems = GetPerceivableConsumableItems();
 
             // First it prioritises its safety. If it's in serious danger, or is hurt and is in less danger, it should flee. If it can't flee, it should fight.
-            if(IsInDanger() || (IsInjured() && IsThreatened()))
+
+
+            if (aggressive)
+            {
+                ChooseFight();
+            }
+            else if (IsInDanger() || (IsInjured() && IsThreatened()))
             {
                 if (CanFlee())
                 {
@@ -62,9 +74,9 @@ namespace SurvivalGame.Content.Characters.AI
                 }
                 else
                 {
-                    Fight();
+                    ChooseFight();
                 }
-            }  
+            }
             else if (IsThirsty()) // If thirsty, seek a drink
             {
                 SeekNeed("thirst");
@@ -139,7 +151,7 @@ namespace SurvivalGame.Content.Characters.AI
 
             foreach(Coords tileCoords in adjacentTiles)
             {
-                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.GetCoordsArray(), targetCoords);
+                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.positionArray, targetCoords);
                 
                 if((perceivableTiles[tileCoords.x, tileCoords.y]!=null) && !(perceivableTiles[tileCoords.x, tileCoords.y].blocksMovement) && (newThreatDistance > currentThreatDistance))
                 {
@@ -148,7 +160,7 @@ namespace SurvivalGame.Content.Characters.AI
             }
             return false;
         }
-
+        
         public bool CanPerceiveConsumable(string need)
         {
             foreach(List<ConsumableItem> consItemList in perceivableConsumableItems.Values)
@@ -294,7 +306,7 @@ namespace SurvivalGame.Content.Characters.AI
 
                 foreach (Coords tileCoords in adjacentTiles)
             {
-                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.GetCoordsArray(), targetCoords);
+                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.positionArray, targetCoords);
 
                 if ((perceivableTiles[tileCoords.x, tileCoords.y]!=null) && !(perceivableTiles[tileCoords.x, tileCoords.y].blocksMovement) && (newThreatDistance > currentThreatDistance))
                 {
@@ -304,10 +316,48 @@ namespace SurvivalGame.Content.Characters.AI
                 }
             }
         }
+        
+        /// <summary>
+        /// When the creature chooses to fight, it will attack if possible, otherwise it will move towards its target (the player).
+        /// </summary>
+        /// <param name="targetCoords">Coords of the target to attack</param>
+        public void ChooseFight()
+        {        
+            Coords creatureCoords = new Coords(creature.position);
+            Coords playerCoords = new Coords(player.GetPlayerCoords());
 
-        public void Fight()
-        {
-            Console.WriteLine("Ai chooses Fight action");
+            bool playerIsAdj = false;
+
+            List<Coords> adjacentTilesToCreature = MapUtils.GetAdjacentTiles(map.layout, creatureCoords);
+
+            foreach (Coords coord in adjacentTilesToCreature)
+            {
+                if (coord.Equals(playerCoords))
+                {
+                    playerIsAdj = true;
+                }
+            }
+            
+            if (playerIsAdj)
+            {
+                Fight fight = new Fight();
+                fight.CreatureAttackPlayer(creature, player);
+            }
+            else
+            {
+                // TODO - Create some method to do this. Too hacky
+                if(Math.Abs(playerCoords.x - creatureCoords.x) >= 5 || Math.Abs(playerCoords.y - creatureCoords.y) >= 5)
+                {
+                    Wander();
+                }
+                else
+                {
+                    targetCoords = new Coords(Math.Abs(playerCoords.x - creatureCoords.x) + 5, Math.Abs(playerCoords.y - creatureCoords.y) + 5).GetCoordsArray();
+
+                    MoveToTarget();
+                }
+            }
+                
         }
 
         public void SeekNeed(string need)
@@ -393,7 +443,7 @@ namespace SurvivalGame.Content.Characters.AI
                 if ((perceivableTiles[tileCoords.x, tileCoords.y] != null) && (!perceivableTiles[tileCoords.x, tileCoords.y].blocksMovement))
                 {
                     // If current tile has been visited recently, weigh more strongly for less curious creatures.
-                    if (previouslyVisitedTiles.Contains(MapUtils.ConvertPerceivableMapCoordsToMapCoords(tileCoords.GetCoordsArray(), perceivableTiles, map, creature.position)))
+                    if (previouslyVisitedTiles.Contains(MapUtils.ConvertPerceivableMapCoordsToMapCoords(tileCoords.positionArray, perceivableTiles, map, creature.position)))
                     {
                         // TODO - the 10 should be set in a global variable as "MAX_CURIOSITY" or something. May want to do this differently.
                         weight += 2*(10 - curiosity);
@@ -403,7 +453,7 @@ namespace SurvivalGame.Content.Characters.AI
                         weight += curiosity;
                     }
 
-                    weightDictionary.Add(tileCoords.GetCoordsArray(), weight);
+                    weightDictionary.Add(tileCoords.positionArray, weight);
                 }
             }
 

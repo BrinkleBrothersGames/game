@@ -63,6 +63,13 @@ namespace SurvivalGame.Content.World
             return tile;       
         }
 
+        public Tile RemoveContentFromTile(Tile tile, Terrain contentTerrain, Item contentItem)
+        {
+            tile.contentsTerrain.Remove(contentTerrain);
+            tile.contentsItems.RemoveItemFromInventory(contentItem);
+            return tile;
+        }
+
         public void BlockMovement()
         {
             this.blocksMovement = true;

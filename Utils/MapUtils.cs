@@ -1,4 +1,5 @@
 ﻿using Game.Content.World;
+using SurvivalGame.Content.Characters;
 using SurvivalGame.Content.World;
 using System;
 using System.Collections;
@@ -30,12 +31,12 @@ namespace SurvivalGame.Utils
         {
             int[] percMapCoordsRelativeToCentre = new int[] { perceivableMapCoords[0] - (perceivableTiles.GetLength(0) / 2), perceivableMapCoords[1] - (perceivableTiles.GetLength(1) / 2) };
 
-            return new int[]{ centreOfPercMapSuperMapCoords[0] + percMapCoordsRelativeToCentre[0],  centreOfPercMapSuperMapCoords[1] + percMapCoordsRelativeToCentre[1]};
+            return new int[] { centreOfPercMapSuperMapCoords[0] + percMapCoordsRelativeToCentre[0], centreOfPercMapSuperMapCoords[1] + percMapCoordsRelativeToCentre[1] };
         }
 
         public static bool IsOutsideMap(int[] newCoords, Map map)
         {
-            if ( newCoords[0] < 0 || newCoords[0] > (map.width - 1) || newCoords[1] < 0 || newCoords[1] > (map.height - 1))
+            if (newCoords[0] < 0 || newCoords[0] > (map.width - 1) || newCoords[1] < 0 || newCoords[1] > (map.height - 1))
             {
                 return true;
             }
@@ -51,14 +52,14 @@ namespace SurvivalGame.Utils
             Dictionary<Coords, int> distanceByCoordinates = new Dictionary<Coords, int>();
             List<Coords> mappedTiles = new List<Coords>();
             List<Coords> tilesToBeMapped = new List<Coords>();
-            List<Coords> tilesToBeMappedThisLoop = new List<Coords >();
+            List<Coords> tilesToBeMappedThisLoop = new List<Coords>();
             Coords currentTile = new Coords(targetCoords);
             int distance = 0;
-            
+
             tilesToBeMapped.Add(new Coords(targetCoords));
 
             // Add current tiles with distance incremented by one. Get adjacent tiles for next iteration.
-            while(tilesToBeMapped.Count > 0)
+            while (tilesToBeMapped.Count > 0)
             {
                 distance++;
                 tilesToBeMappedThisLoop = tilesToBeMapped.ToList();
@@ -67,14 +68,14 @@ namespace SurvivalGame.Utils
                 // If each coord set is not null and doesn't block movement, add it to our dictionary and add its neighbours to the tilesToBeMapped
                 foreach (Coords coords in tilesToBeMappedThisLoop)
                 {
-                    if(map[coords.x, coords.y] != null && !map[coords.x, coords.y].blocksMovement)
+                    if (map[coords.x, coords.y] != null && !map[coords.x, coords.y].blocksMovement)
                     {
                         distanceByCoordinates.Add(coords, distance);
                         mappedTiles.Add(coords);
 
-                        foreach(Coords adjacentCoords in GetAdjacentTiles(map, coords))
+                        foreach (Coords adjacentCoords in GetAdjacentTiles(map, coords))
                         {
-                            if(!tilesToBeMapped.Contains(adjacentCoords) && !mappedTiles.Contains(adjacentCoords))
+                            if (!tilesToBeMapped.Contains(adjacentCoords) && !mappedTiles.Contains(adjacentCoords))
                             {
                                 tilesToBeMapped.Add(adjacentCoords);
                             }
@@ -91,21 +92,52 @@ namespace SurvivalGame.Utils
             List<Coords> adjacentTiles = new List<Coords>();
             List<Coords> adjacentTilesReturn = new List<Coords>();
 
-            adjacentTiles.Add(new Coords (location.x + 1, location.y));
-            adjacentTiles.Add(new Coords (location.x - 1, location.y));
-            adjacentTiles.Add(new Coords (location.x, location.y + 1 ));
-            adjacentTiles.Add(new Coords (location.x, location.y - 1 ));
+            adjacentTiles.Add(new Coords(location.x + 1, location.y));
+            adjacentTiles.Add(new Coords(location.x - 1, location.y));
+            adjacentTiles.Add(new Coords(location.x, location.y + 1));
+            adjacentTiles.Add(new Coords(location.x, location.y - 1));
 
-            foreach(Coords coords in adjacentTiles)
+
+            foreach (Coords coords in adjacentTiles)
             {
                 // If int[] doesn't lie on map, or no tile exists at that point...
-                if(!(coords.x < 0 || coords.x > map.GetLength(0)-1 || coords.y < 0 || coords.y > map.GetLength(1)-1 || map[coords.x, coords.y] == null))
+                if (!(coords.x < 0 || coords.x > map.GetLength(0) - 1 || coords.y < 0 || coords.y > map.GetLength(1) - 1 || map[coords.x, coords.y] == null))
                 {
                     adjacentTilesReturn.Add(coords);
                 }
             }
 
             return adjacentTilesReturn;
+        }
+
+        // TODO - Perhaps move this somewhere else.
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="map"></param>
+        /// <param name="location"></param>
+        /// <param name="allCreatures"></param>
+        /// <returns></returns>
+        public static List<Creature> GetAdjacentCreatures(Map map, Coords location)
+        {
+            List<Coords> adjacentCoords = GetAdjacentTiles(map.layout, location);
+            
+            List<Creature> adjacentCreatures = new List<Creature>();            
+
+            foreach (Creature creature in map.presentCreatures)
+            {
+                Coords creaturesssCoords = new Coords(creature.position);
+
+                foreach (Coords coords in adjacentCoords)
+                {
+                    if (coords.Equals(creaturesssCoords))
+                    {
+                        adjacentCreatures.Add(creature);
+                    }
+                }
+            }
+
+            return adjacentCreatures;
         }
     }
 }
