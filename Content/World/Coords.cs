@@ -17,16 +17,13 @@ namespace SurvivalGame.Content.World
             this.y = y;
         }
 
-        public Coords(int[] coords)
+        public Coords(Coords coords)
         {
-            this.x = coords[0];
-            this.y = coords[1];
+            this.x = coords.x;
+            this.y = coords.y;
         }
 
-        public int[] GetCoordsArray()
-        {
-            return new int[] { x, y };
-        }
+
         
         public override bool Equals(object obj)
         {

@@ -20,15 +20,13 @@ namespace SurvivalGame.Content.Characters
         public Needs needs = new Needs();
         public Stats stats = new Stats();
         public Coords coords;
-        public int[] position;
 
         
-        public Creature(string name, int[] position)
+        public Creature(string name, Coords coords)
         {
             this.name = name;
-            this.position = position;
-            ai = new SimpleAI(this);
-            this.coords = new Coords(position);            
+            this.coords = coords;
+            ai = new SimpleAI(this);           
         }
 
         public void DecideAction()
@@ -37,9 +35,9 @@ namespace SurvivalGame.Content.Characters
             ai.ActionSelection();
         }
 
-        public bool UpdatePosition(Map map, int[] newPosition)
+        public bool UpdatePosition(Map map, Coords newCoords)
         {
-            if (MapUtils.IsOutsideMap(newPosition, map) || map.layout[newPosition[0], newPosition[1]].blocksMovement)
+            if (MapUtils.IsOutsideMap(newCoords, map) || map.layout[newCoords.x, newCoords.y].blocksMovement)
             {
                 return false;
             }
@@ -47,13 +45,13 @@ namespace SurvivalGame.Content.Characters
             Terrain creatureTerrain = new Terrain(name);
 
             // Remove the player from their old position on the map
-            map.layout[this.position[0], this.position[1]].contentsTerrain.Remove(creatureTerrain);
+            map.layout[this.coords.x, this.coords.y].contentsTerrain.Remove(creatureTerrain);
 
             // Set the player's coords to their new position
-            this.position = newPosition;
+            this.coords = newCoords;
 
             // Update map to reflect new position
-            map.layout[newPosition[0], newPosition[1]].contentsTerrain.Add(creatureTerrain);
+            map.layout[newCoords.x, newCoords.y].contentsTerrain.Add(creatureTerrain);
 
             return true;
         }

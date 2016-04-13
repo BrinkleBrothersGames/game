@@ -1,0 +1,6 @@
+C:\Users\HP\Documents\Programming\game-master\bin\Debug\SurvivalGame.exe.config
+C:\Users\HP\Documents\Programming\game-master\obj\Debug\SurvivalGame.csprojResolveAssemblyReference.cache
+C:\Users\HP\Documents\Programming\game-master\bin\Debug\SurvivalGame.exe
+C:\Users\HP\Documents\Programming\game-master\bin\Debug\SurvivalGame.pdb
+C:\Users\HP\Documents\Programming\game-master\obj\Debug\SurvivalGame.exe
+C:\Users\HP\Documents\Programming\game-master\obj\Debug\SurvivalGame.pdb

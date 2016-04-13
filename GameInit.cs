@@ -1,6 +1,7 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Characters;
 using SurvivalGame.Content.Items;
+using SurvivalGame.Content.World;
 using SurvivalGame.Engine;
 using SurvivalGame.Utils;
 using System;
@@ -34,7 +35,7 @@ namespace Game
             PlayerSetupClass setupPlayer = new PlayerSetupClass();
             setupPlayer.PlayerSetup(player);
 
-            player.UpdatePlayerPosition(currentLevel, player, new int[] { 15, 15 });
+            player.UpdatePlayerPosition(currentLevel, player, new Coords(15, 15));
         }
 
         // TODO - Should probably go in a player control class or something
@@ -42,37 +43,42 @@ namespace Game
         public void doPlayerAction(string actionLong)
         {
             // Initialised and assigned here to account for player not taking specific action
-            int[] playerCoords = player.GetPlayerCoords();
             int timeTaken = 0;
 
             string[] splitAction = actionLong.Split(' ');
             string action = splitAction[0];
             // TODO - change this to 'actionPassed' or something, use for special case for failure of all actions
             bool hasItem;
+            bool playerMoves = false;
+            Coords newCoords;
 
             switch (action)
             {
                 case ("w"):
-                    playerCoords[1] += 1;
+                    newCoords = new Coords(player.coords.x, player.coords.y + 1);
+                    playerMoves = player.UpdatePlayerPosition(currentLevel, player, newCoords);
                     break;
                 case ("s"):
-                    playerCoords[1] -= 1;
+                    newCoords = new Coords(player.coords.x, player.coords.y - 1);
+                    playerMoves = player.UpdatePlayerPosition(currentLevel, player, newCoords);
                     break;
                 case ("a"):
-                    playerCoords[0] -= 1;
+                    newCoords = new Coords(player.coords.x - 1, player.coords.y);
+                    playerMoves = player.UpdatePlayerPosition(currentLevel, player, newCoords);
                     break;
                 case ("d"):
-                    playerCoords[0] += 1;
+                    newCoords = new Coords(player.coords.x + 1, player.coords.y);
+                    playerMoves = player.UpdatePlayerPosition(currentLevel, player, newCoords);
                     break;
                 // TODO - these 'movement' commands shouldn't work this way. Should call method themselves with the new value
                 case ("status"):
                     player.GetStatus();
                     break;
                 case ("look"):
-                    if (currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.inventory.Count > 0)
+                    if (currentLevel.layout[player.coords.x, player.coords.y].contentsItems.inventory.Count > 0)
                     {
                         Console.Write("Here, you can see");
-                        foreach (Item mapItem in currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.inventory.Keys)
+                        foreach (Item mapItem in currentLevel.layout[player.coords.x, player.coords.y].contentsItems.inventory.Keys)
                         {
                             Console.Write(" a " + mapItem.name);
                         }
@@ -92,7 +98,7 @@ namespace Game
                         {
                             player.inv.RemoveItemFromInventory(invItem);
                             Console.WriteLine("You drop a " + splitAction[1]);
-                            currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.AddItemToInventory(invItem);
+                            currentLevel.layout[player.coords.x, player.coords.y].contentsItems.AddItemToInventory(invItem);
                             hasItem = false;
                             break;
                         }
@@ -105,11 +111,11 @@ namespace Game
                 case ("get"):
                     hasItem = true;
 
-                    foreach (Item mapItem in currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.inventory.Keys)
+                    foreach (Item mapItem in currentLevel.layout[player.coords.x, player.coords.y].contentsItems.inventory.Keys)
                     {
                         if (mapItem.name == splitAction[1])
                         {
-                            currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.RemoveItemFromInventory(mapItem);
+                            currentLevel.layout[player.coords.x, player.coords.y].contentsItems.RemoveItemFromInventory(mapItem);
                             Console.WriteLine("You take a " + splitAction[1] + " from the floor.");
                             player.inv.AddItemToInventory(mapItem);
                             hasItem = false;
@@ -170,7 +176,7 @@ namespace Game
 
             // TODO - Ouch! Move the update player position to only where it's relevant!
 
-            if (player.UpdatePlayerPosition(currentLevel, player, playerCoords))
+            if (playerMoves)
             {
                 timeTaken = 2;
             }

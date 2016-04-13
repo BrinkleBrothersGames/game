@@ -12,17 +12,15 @@ namespace SurvivalGame.Content.Characters
 {
     public class Player
     {
-        int playerXCoord;
-        int playerYCoord;
         public Inventory inv;
         public Needs needs;
         public Stats stats;
         public TemporaryStats tempStats;
+        public Coords coords;
         
         public Player(int x, int y, Inventory inv)
         {
-            this.playerXCoord = x;
-            this.playerYCoord = y;
+            this.coords = new Coords(x, y);
             this.inv = inv;
             this.needs = new Needs();
             this.stats = new Stats();
@@ -31,29 +29,19 @@ namespace SurvivalGame.Content.Characters
 
         public void SetPlayerCoords(int x, int y)
         {
-            this.playerXCoord = x;
-            this.playerYCoord = y;
+            this.coords.x = x;
+            this.coords.y = y;
         }
 
-        // TODO - should implement 0-1-infinity rule here too - should we?
-        public void SetPlayerCoords(int[] coords)
+        public void SetPlayerCoords(Coords coords)
         {
-            this.playerXCoord = coords[0];
-            this.playerYCoord = coords[1];
+            this.coords = coords;
         }
 
-        public int[] GetPlayerCoords()
-        {
-            int[] playerCoords = new int[2];
-            playerCoords[0] = playerXCoord;
-            playerCoords[1] = playerYCoord;
-
-            return playerCoords;
-        }
         
-        public bool UpdatePlayerPosition(Map map, Player player, int[] newCoords)
+        public bool UpdatePlayerPosition(Map map, Player player, Coords newCoords)
         {
-            if(map.layout[newCoords[0], newCoords[1]].blocksMovement)
+            if(map.layout[newCoords.x, newCoords.y].blocksMovement)
             {
                 return false;
             }
@@ -61,14 +49,14 @@ namespace SurvivalGame.Content.Characters
             Terrain playerTerrain = new Terrain("player");
 
             // Remove the player from their old position on the map
-            map.layout[player.playerXCoord, player.playerYCoord].contentsTerrain.Remove(playerTerrain);
+            map.layout[player.coords.x, player.coords.y].contentsTerrain.Remove(playerTerrain);
 
             // Set the player's coords to their new position
             player.SetPlayerCoords(newCoords);
 
-            // Update map to reflect new position
+            // Update map to reflect new position.
 
-            map.layout[player.playerXCoord, player.playerYCoord].contentsTerrain.Add(playerTerrain);
+            map.layout[player.coords.x, player.coords.y].contentsTerrain.Add(playerTerrain);
 
             return true;
         }

@@ -115,9 +115,8 @@ namespace SurvivalGame.Content.Characters
         public void PlayerAttackScreen(Player player, Map map)
         {
             this.player = player;
-            Coords playerCoords = new Coords(player.GetPlayerCoords());
 
-            List<Creature> adjacentCreatures = MapUtils.GetAdjacentCreatures(map, playerCoords);
+            List<Creature> adjacentCreatures = MapUtils.GetAdjacentCreatures(map, player.coords);
 
             if (adjacentCreatures.Count() > 1)
             {

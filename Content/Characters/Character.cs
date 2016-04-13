@@ -37,9 +37,9 @@ namespace SurvivalGame.Content.Characters
             this.inv = new Inventory();
         }
 
-        public bool UpdatePosition(Map map, int[] newPosition)
+        public bool UpdatePosition(Map map, Coords newPosition)
         {
-            if (MapUtils.IsOutsideMap(newPosition, map) || map.layout[newPosition[0], newPosition[1]].blocksMovement)
+            if (MapUtils.IsOutsideMap(newPosition, map) || map.layout[newPosition.x, newPosition.y].blocksMovement)
             {
                 return false;
             }
@@ -50,10 +50,10 @@ namespace SurvivalGame.Content.Characters
             map.layout[this.coords.x, this.coords.y].contentsTerrain.Remove(characterTerrain);
 
             // Set the player's coords to their new position
-            this.coords = new Coords(newPosition[0], newPosition[1]);
+            this.coords = new Coords(newPosition.x, newPosition.y);
 
             // Update map to reflect new position
-            map.layout[newPosition[0], newPosition[1]].contentsTerrain.Add(characterTerrain);
+            map.layout[newPosition.x, newPosition.y].contentsTerrain.Add(characterTerrain);
 
             return true;
         }
