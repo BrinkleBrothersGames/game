@@ -8,15 +8,22 @@ namespace SurvivalGame.Content.Items
 {
     public class Inventory
     {
-        // TODO - should have method for adding many items. Should take input is Dictionary<Item, int>()
-
         // Contains item and the number of it the player has in their inventory
 
         public Dictionary<Item, int> inventory = new Dictionary<Item, int>() { };
 
+        
+        //TODO - Default inventory capacity for, say tile, should be unlimited? Better way of doing this?
+        public int capacity = 99999;
+
         public Inventory()
         {
+        }
 
+        //TODO - Better with or without setting capacity?
+        public Inventory(int capacity)
+        {
+            this.capacity = capacity;
         }
 
         public Inventory(Dictionary<Item, int> contents)
@@ -36,31 +43,63 @@ namespace SurvivalGame.Content.Items
             return null;         
         }
 
-        public void AddItemToInventory(Item item)
+        /// <summary>
+        /// Add a single item to the inventory.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public bool AddItemToInventory(Item item)
         {
-            // If dictionary contains item, increase count by 1. Else add item to inventory.
-            if (this.inventory.ContainsKey(item))
+            if (CountOfAllItemsInInventory() >= capacity)
             {
-                this.inventory[item] += 1;
+                Console.WriteLine("Your inventory is full.");
+                return false;
             }
+
             else
             {
-                this.inventory.Add(item, 1);
+                // If dictionary contains item, increase count, else add item to inventory.
+                if (this.inventory.ContainsKey(item))
+                {
+                    this.inventory[item] += 1;
+                }
+                else
+                {
+                    this.inventory.Add(item, 1);
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Add a dictionary of items to an inventory.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="numberOfItems"></param>
+        /// <returns></returns>
+        public bool AddItemsToInventory(Dictionary<Item, int> inventoryToAdd)
+        {
+            Inventory inv = new Inventory(inventoryToAdd);
+
+            if (inv.CountOfAllItemsInInventory() + this.CountOfAllItemsInInventory() > capacity)
+            {
+                Console.WriteLine("The Item(s) won't fit in the inventory.");
+                return false;
+            }
+
+            else
+            { 
+                foreach (KeyValuePair<Item, int> entry in inventory)
+                {
+                    for (int i = 1; i <= entry.Value; i++)
+                    {
+                        AddItemToInventory(entry.Key);
+                    }
+                }
+                return true;
             }
         }
 
-        public void AddItemToInventory(Item item, int number)
-        {
-            // If dictionary contains item, increase count by 1. Else add item to inventory.
-            if (this.inventory.ContainsKey(item))
-            {
-                this.inventory[item] += number;
-            }
-            else
-            {
-                this.inventory.Add(item, number);
-            }
-        }
 
         public void RemoveItemFromInventory(Item item)
         {
@@ -69,7 +108,7 @@ namespace SurvivalGame.Content.Items
                 return;
             }
 
-            // If dictionary contains item, increase count by 1. Else add item to inventory.
+            // If dictionary contains item, decrease count by 1. Else remove item from inventory.
             if (this.inventory[item] > 1)
             {
                 this.inventory[item] -= 1;
@@ -78,37 +117,6 @@ namespace SurvivalGame.Content.Items
             {
                 this.inventory.Remove(item);
             }
-        }
-
-        public void RemoveItemFromInventory(Item item, int numRemoved)
-        {
-            if (!this.inventory.ContainsKey(item))
-            {
-                return;
-            }
-
-            // If dictionary contains  multiple of item, decrease count by numRemoved. Else remove item from inventory.
-            if (this.inventory[item] > numRemoved)
-            {
-                this.inventory[item] -= numRemoved;
-            }
-            else
-            {
-                this.inventory.Remove(item);
-            }
-        }
-
-        public bool Contains(Item inputItem)
-        {
-            foreach(Item item in this.inventory.Keys)
-            {
-                if (item.Equals(inputItem))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         public void PrintInventory()
@@ -128,5 +136,62 @@ namespace SurvivalGame.Content.Items
                 }
             }
         }
+
+        public int CountOfAllItemsInInventory()
+        {
+            int count = 0;
+
+            foreach (int itemCount in inventory.Values)
+            {
+                count += itemCount;
+            }
+
+            return count;
+        }
+
+        /// <summary>
+        /// Returns a list of all the containers within an inventory and in the containers within those containers etc.
+        /// </summary>
+        /// <returns></returns>
+        public List<Container> FindContainersInInventory()
+        {
+            List<Container> containers = new List<Container>();
+            List<Container> containersUncheckedForNest = new List<Container>();
+
+            foreach (KeyValuePair<Item, int> item in inventory)
+            {
+                for (int i = 1; i <= item.Value; i++)
+                {
+                    if (item.Key.GetType() == typeof(Container))
+                    {
+                        containers.Add(item.Key as Container);
+                        containersUncheckedForNest.Add(item.Key as Container);
+                    }
+                }
+            }
+
+            while (containersUncheckedForNest.Count > 0)
+            {
+                containersUncheckedForNest.Clear();
+
+                foreach (Container container in containersUncheckedForNest)
+                {
+                    foreach (KeyValuePair<Item, int> item in container.inv.inventory)
+                    {
+                        for (int i = 1; i <= item.Value; i++)
+                        {
+                            if (item.Key.GetType() == typeof(Container))
+                            {
+                                containers.Add(item.Key as Container);
+                                containersUncheckedForNest.Add(item.Key as Container);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return containers;
+        }
+
     }
 }

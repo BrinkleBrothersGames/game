@@ -18,25 +18,25 @@ namespace SurvivalGame.Utils
         /// <param name="firstPoint"></param>
         /// <param name="secondPoint"></param>
         /// <returns></returns>
-        public static int GetAbsoluteDistanceBetweenTwoPoints(int[] firstPoint, int[] secondPoint)
+        public static int GetAbsoluteDistanceBetweenTwoPoints(Coords firstPoint, Coords secondPoint)
         {
             int distance = 0;
 
-            distance += Math.Abs(firstPoint[0] - secondPoint[0]) + Math.Abs(firstPoint[1] - secondPoint[1]);
+            distance += Math.Abs(firstPoint.x - secondPoint.x) + Math.Abs(firstPoint.y - secondPoint.y);
 
             return distance;
         }
 
-        public static int[] ConvertPerceivableMapCoordsToMapCoords(int[] perceivableMapCoords, Tile[,] perceivableTiles, Map superMap, int[] centreOfPercMapSuperMapCoords)
+        public static Coords ConvertPerceivableMapCoordsToMapCoords(Coords perceivableMapCoords, Tile[,] perceivableTiles, Map superMap, Coords centreOfPercMapSuperMapCoords)
         {
-            int[] percMapCoordsRelativeToCentre = new int[] { perceivableMapCoords[0] - (perceivableTiles.GetLength(0) / 2), perceivableMapCoords[1] - (perceivableTiles.GetLength(1) / 2) };
+            Coords percMapCoordsRelativeToCentre = new Coords(perceivableMapCoords.x - (perceivableTiles.GetLength(0) / 2), perceivableMapCoords.y - (perceivableTiles.GetLength(1) / 2) );
 
-            return new int[] { centreOfPercMapSuperMapCoords[0] + percMapCoordsRelativeToCentre[0], centreOfPercMapSuperMapCoords[1] + percMapCoordsRelativeToCentre[1] };
+            return new Coords( centreOfPercMapSuperMapCoords.x + percMapCoordsRelativeToCentre.x, centreOfPercMapSuperMapCoords.y + percMapCoordsRelativeToCentre.y );
         }
 
-        public static bool IsOutsideMap(int[] newCoords, Map map)
+        public static bool IsOutsideMap(Coords newCoords, Map map)
         {
-            if (newCoords[0] < 0 || newCoords[0] > (map.width - 1) || newCoords[1] < 0 || newCoords[1] > (map.height - 1))
+            if (newCoords.x < 0 || newCoords.x > (map.width - 1) || newCoords.y < 0 || newCoords.y > (map.height - 1))
             {
                 return true;
             }
@@ -47,7 +47,7 @@ namespace SurvivalGame.Utils
         }
 
         // Returns a dictionary of coordinates and the number moves required to get from there to a target point, taking terrain into account
-        public static Dictionary<Coords, int> GetDijkstraMap(Tile[,] map, int[] targetCoords)
+        public static Dictionary<Coords, int> GetDijkstraMap(Tile[,] map, Coords targetCoords)
         {
             Dictionary<Coords, int> distanceByCoordinates = new Dictionary<Coords, int>();
             List<Coords> mappedTiles = new List<Coords>();
@@ -126,7 +126,7 @@ namespace SurvivalGame.Utils
 
             foreach (Creature creature in map.presentCreatures)
             {
-                Coords creaturesssCoords = new Coords(creature.position);
+                Coords creaturesssCoords = new Coords(creature.coords);
 
                 foreach (Coords coords in adjacentCoords)
                 {

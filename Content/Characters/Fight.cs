@@ -14,7 +14,6 @@ namespace SurvivalGame.Content.Characters
         Player player;
         Creature creature1;
         Creature creature2;
-        List<Creature> adjacentCreatures;
         float playerDamageModifier = 0.5f;
         float creature1DamageModifier = 0.95f;
         float creature2DamageModifier = 0.9f;
@@ -115,9 +114,8 @@ namespace SurvivalGame.Content.Characters
         public void PlayerAttackScreen(Player player, Map map)
         {
             this.player = player;
-            Coords playerCoords = new Coords(player.GetPlayerCoords());
 
-            List<Creature> adjacentCreatures = MapUtils.GetAdjacentCreatures(map, playerCoords);
+            List<Creature> adjacentCreatures = MapUtils.GetAdjacentCreatures(map, player.coords);
 
             if (adjacentCreatures.Count() > 1)
             {

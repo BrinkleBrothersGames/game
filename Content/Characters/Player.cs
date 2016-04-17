@@ -12,53 +12,43 @@ namespace SurvivalGame.Content.Characters
 {
     public class Player
     {
-        public int playerXCoord;
-        public int playerYCoord;
-        public Coords playerCoords;
         public Inventory inv;
         public Needs needs;
         public Stats stats;
-        public List<Skill> skillList;
         public TemporaryStats tempStats;
-        
-        public Player(int x, int y, Inventory inv)
+        public Coords coords;
+        public List<BodyPart> bodyParts = new List<BodyPart>()
         {
-            this.playerXCoord = x;
-            this.playerYCoord = y;
-            playerCoords = new Coords(x, y);
-            this.inv = inv;
-            this.needs = new Needs();
+            new BodyPart("hand", 1),
+            new BodyPart("back", 1),
+            new BodyPart("torso", 2)
+        };
+
+        //Was it right to remove inventory? I couldn't see why it was being set directly.
+        public Player(int x, int y)
+        {
+            this.coords = new Coords(x, y);
             this.stats = new Stats();
+            this.inv = new Inventory(stats.strength);
+            this.needs = new Needs();
             this.tempStats = new TemporaryStats(stats);
         }
 
         public void SetPlayerCoords(int x, int y)
         {
-            this.playerXCoord = x;
-            this.playerYCoord = y;
-            playerCoords = new Coords(x, y);
+            this.coords.x = x;
+            this.coords.y = y;
         }
 
-        // TODO - should implement 0-1-infinity rule here too - should we?
-        public void SetPlayerCoords(int[] coords)
+        public void SetPlayerCoords(Coords coords)
         {
-            this.playerXCoord = coords[0];
-            this.playerYCoord = coords[1];
-            playerCoords = new Coords(coords[0], coords[1]);
+            this.coords = coords;
         }
 
-        public int[] GetPlayerCoords()
-        {
-            int[] playerCoords = new int[2];
-            playerCoords[0] = playerXCoord;
-            playerCoords[1] = playerYCoord;
-
-            return playerCoords;
-        }
         
-        public bool UpdatePlayerPosition(Map map, Player player, int[] newCoords)
+        public bool UpdatePlayerPosition(Map map, Player player, Coords newCoords)
         {
-            if(map.layout[newCoords[0], newCoords[1]].blocksMovement)
+            if(map.layout[newCoords.x, newCoords.y].blocksMovement)
             {
                 return false;
             }
@@ -66,14 +56,14 @@ namespace SurvivalGame.Content.Characters
             Terrain playerTerrain = new Terrain("player");
 
             // Remove the player from their old position on the map
-            map.layout[player.playerXCoord, player.playerYCoord].contentsTerrain.Remove(playerTerrain);
+            map.layout[player.coords.x, player.coords.y].contentsTerrain.Remove(playerTerrain);
 
             // Set the player's coords to their new position
             player.SetPlayerCoords(newCoords);
 
-            // Update map to reflect new position
+            // Update map to reflect new position.
 
-            map.layout[player.playerXCoord, player.playerYCoord].contentsTerrain.Add(playerTerrain);
+            map.layout[player.coords.x, player.coords.y].contentsTerrain.Add(playerTerrain);
 
             return true;
         }
@@ -127,5 +117,69 @@ namespace SurvivalGame.Content.Characters
                 return false;
             }
         }
+
+        /// <summary>
+        /// Returns a player's extended inventory.
+        /// </summary>
+        /// <returns></returns>
+        public Inventory ExtendedPlayerInventory()
+        {
+            Inventory totalInv = inv;
+
+            totalInv.capacity = GetExtendedInvCapacity();
+
+            foreach (BodyPart bodyPart in bodyParts)
+            {
+                totalInv.AddItemsToInventory(bodyPart.inv.inventory);
+            }
+
+            foreach (Container container in GetPlayerContainers())
+            {
+                totalInv.AddItemsToInventory(container.inv.inventory);
+            }
+
+            return totalInv;
+        }
+
+        public int GetExtendedInvCapacity()
+        {
+            int totalCapacity = inv.capacity;
+
+            foreach (BodyPart bodyPart in bodyParts)
+            {
+                totalCapacity += bodyPart.inv.capacity;
+            }
+
+            foreach (Container container in GetPlayerContainers())
+            {
+                totalCapacity += container.inv.capacity;
+            }
+
+            return totalCapacity;
+        }
+
+        /// <summary>
+        /// Returns a list of all containers possesed by a player.
+        /// </summary>
+        /// <returns></returns>
+        public List<Container> GetPlayerContainers()
+        {
+            List<Container> storageItems = new List<Container>();
+            List<Container>  storageItemsUncheckedForNest = new List<Container>();
+
+            storageItems.AddRange(inv.FindContainersInInventory());
+
+            foreach (BodyPart bodyPart in bodyParts)
+            {
+                storageItems.AddRange(bodyPart.inv.FindContainersInInventory());
+            }
+            return storageItems;
+        }
+
+
+
+
+
+
     }
 }

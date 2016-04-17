@@ -23,11 +23,11 @@ namespace SurvivalGame.Content.Characters.AI
         int perception = 5;
         bool aggressive = true;
 
-        int[] targetCoords; // The coords of the AI's current target. Can be an enemy to flee from/attack or food/drink, etc.
+        Coords targetCoords; // The coords of the AI's current target. Can be an enemy to flee from/attack or food/drink, etc.
         List<Coords> adjacentTiles;
-        List<int[]> previouslyVisitedTiles = new List<int[]>(); // This should be much more powerful: maybe a weighting system that adds tiles the creature has visited often to its permenant memory?
+        List<Coords> previouslyVisitedTiles = new List<Coords>(); // This should be much more powerful: maybe a weighting system that adds tiles the creature has visited often to its permenant memory?
         Tile[,] perceivableTiles;
-        Dictionary<int[], List<ConsumableItem>> perceivableConsumableItems = new Dictionary<int[], List<ConsumableItem>>();
+        Dictionary<Coords, List<ConsumableItem>> perceivableConsumableItems = new Dictionary<Coords, List<ConsumableItem>>();
         Creature creature;
         // TODO - Replace wich 'character', which can be player or creature.
         Player player;
@@ -113,7 +113,7 @@ namespace SurvivalGame.Content.Characters.AI
                     if (perceivableTiles[(perceivableTiles.GetLength(0) / 2) + x - comfortRange, (perceivableTiles.GetLength(1) / 2) + y - comfortRange]!=null && perceivableTiles[(perceivableTiles.GetLength(0) / 2) + x - comfortRange, (perceivableTiles.GetLength(1) / 2) + y - comfortRange].contentsTerrain.Contains(threat))
                     {
                         // Converts x and y to values in the creature's perception range, then sets those as its 'targetCoords'
-                        targetCoords = new int[] { (perceivableTiles.GetLength(0) / 2) + x - comfortRange, (perceivableTiles.GetLength(1) / 2) + y - comfortRange };
+                        targetCoords = new Coords( (perceivableTiles.GetLength(0) / 2) + x - comfortRange, (perceivableTiles.GetLength(1) / 2) + y - comfortRange );
                         return true;
                     }
                 }
@@ -134,7 +134,7 @@ namespace SurvivalGame.Content.Characters.AI
                 {
                     if ((perceivableTiles[x, y] != null) && perceivableTiles[x, y].contentsTerrain.Contains(threat))
                     {
-                        targetCoords = new int[] { x, y};
+                        targetCoords = new Coords( x, y);
                         return true;
                     }
                 }
@@ -146,13 +146,13 @@ namespace SurvivalGame.Content.Characters.AI
         public bool CanFlee()
         {
             Terrain threat = new Terrain("player");
-            int[] creatureCoords = new int[] { (perceivableTiles.GetLength(0) / 2), (perceivableTiles.GetLength(0) / 2) };
+            Coords creatureCoords = new Coords( (perceivableTiles.GetLength(0) / 2), (perceivableTiles.GetLength(0) / 2) );
             int currentThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(creatureCoords, targetCoords);
             int newThreatDistance = currentThreatDistance;
 
             foreach(Coords tileCoords in adjacentTiles)
             {
-                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.GetCoordsArray(), targetCoords);
+                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords, targetCoords);
                 
                 if((perceivableTiles[tileCoords.x, tileCoords.y]!=null) && !(perceivableTiles[tileCoords.x, tileCoords.y].blocksMovement) && (newThreatDistance > currentThreatDistance))
                 {
@@ -231,9 +231,9 @@ namespace SurvivalGame.Content.Characters.AI
             {
                 for (int x = 0; x <= (perceptionRange * 2); x++)
                 {
-                    if (!(creature.position[0] + x - perceptionRange < 0 || creature.position[0] + x - perceptionRange >= map.layout.GetLength(0) || (creature.position[1] + y - perceptionRange) < 0 || (creature.position[1] + y - perceptionRange) >= map.layout.GetLength(1)))
+                    if (!(creature.coords.x + x - perceptionRange < 0 || creature.coords.x + x - perceptionRange >= map.layout.GetLength(0) || (creature.coords.y + y - perceptionRange) < 0 || (creature.coords.y + y - perceptionRange) >= map.layout.GetLength(1)))
                     {
-                        perceivableTiles[x, y] = map.layout[(creature.position[0] + x - perceptionRange), (creature.position[1] + y - perceptionRange)];
+                        perceivableTiles[x, y] = map.layout[(creature.coords.x + x - perceptionRange), (creature.coords.y + y - perceptionRange)];
                     }
                 }
             }
@@ -242,9 +242,9 @@ namespace SurvivalGame.Content.Characters.AI
         }
 
         // TODO - decide whether this should be put together with 'getTilesInPerceptionRange'. Is it better to do this every time, or just when it's needed?
-        public Dictionary<int[], List<ConsumableItem>> GetPerceivableConsumableItems()
+        public Dictionary<Coords, List<ConsumableItem>> GetPerceivableConsumableItems()
         {
-            Dictionary<int[], List<ConsumableItem>> perceivableItems = new Dictionary<int[], List<ConsumableItem>>();
+            Dictionary<Coords, List<ConsumableItem>> perceivableItems = new Dictionary<Coords, List<ConsumableItem>>();
 
             // Foreach nonempty tile the creature can perceive...
             for (int y = perceivableTiles.GetLength(1) - 1 ; y > 0; y--)
@@ -266,7 +266,7 @@ namespace SurvivalGame.Content.Characters.AI
 
                         if(perceivableItemsList.Count > 0)
                         {
-                            perceivableItems.Add(new int[] { x, y }, perceivableItemsList);
+                            perceivableItems.Add(new Coords(x, y), perceivableItemsList);
                         }
                     }
                 }
@@ -275,7 +275,7 @@ namespace SurvivalGame.Content.Characters.AI
             return perceivableItems;
         }
 
-        public void UpdatePreviouslyVisitedTiles(int[] newlyVisited)
+        public void UpdatePreviouslyVisitedTiles(Coords newlyVisited)
         {
             previouslyVisitedTiles.Add(newlyVisited);
 
@@ -290,7 +290,7 @@ namespace SurvivalGame.Content.Characters.AI
         public void Flee()
         {
             Terrain threat = new Terrain("player");
-            int[] creatureCoords = new int[] { (perceivableTiles.GetLength(0) / 2), (perceivableTiles.GetLength(1) / 2) };
+            Coords creatureCoords = new Coords( (perceivableTiles.GetLength(0) / 2), (perceivableTiles.GetLength(1) / 2) );
             int currentThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(creatureCoords, targetCoords);
             int newThreatDistance = currentThreatDistance;
             
@@ -307,11 +307,11 @@ namespace SurvivalGame.Content.Characters.AI
 
                 foreach (Coords tileCoords in adjacentTiles)
             {
-                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords.GetCoordsArray(), targetCoords);
+                newThreatDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(tileCoords, targetCoords);
 
                 if ((perceivableTiles[tileCoords.x, tileCoords.y]!=null) && !(perceivableTiles[tileCoords.x, tileCoords.y].blocksMovement) && (newThreatDistance > currentThreatDistance))
                 {
-                    int[] newPosition = new int[] { creature.position[0] + (tileCoords.x - ((perceivableTiles.GetLength(0)) / 2)), creature.position[1] + (tileCoords.y - ((perceivableTiles.GetLength(1)) / 2)) };
+                    Coords newPosition = new Coords( creature.coords.x + (tileCoords.x - ((perceivableTiles.GetLength(0)) / 2)), creature.coords.y + (tileCoords.y - ((perceivableTiles.GetLength(1)) / 2)) );
                     creature.UpdatePosition(map, newPosition);
                     return;
                 }
@@ -324,8 +324,8 @@ namespace SurvivalGame.Content.Characters.AI
         /// <param name="targetCoords">Coords of the target to attack</param>
         public void Fight()
         {        
-            Coords creatureCoords = new Coords(creature.position);
-            Coords playerCoords = new Coords(player.GetPlayerCoords());
+            Coords creatureCoords = new Coords(creature.coords);
+            Coords playerCoords = new Coords(player.coords);
 
             bool playerIsAdj = false;
 
@@ -353,7 +353,7 @@ namespace SurvivalGame.Content.Characters.AI
                 }
                 else
                 {
-                    targetCoords = new Coords(Math.Abs(playerCoords.x - creatureCoords.x) + 5, Math.Abs(playerCoords.y - creatureCoords.y) + 5).GetCoordsArray();
+                    targetCoords = new Coords(Math.Abs(playerCoords.x - creatureCoords.x) + 5, Math.Abs(playerCoords.y - creatureCoords.y) + 5);
 
                     MoveToTarget();
                 }
@@ -365,15 +365,15 @@ namespace SurvivalGame.Content.Characters.AI
         {            
             ConsumableItem needItem = null;
             int targetDistance = 1000; // initialise to some high number
-            int[] nearestCoords = null;
+            Coords nearestCoords = null;
 
-            foreach (KeyValuePair<int[], List<ConsumableItem>> dictPair in perceivableConsumableItems)
+            foreach (KeyValuePair<Coords, List<ConsumableItem>> dictPair in perceivableConsumableItems)
             {
                 foreach (ConsumableItem consumable in dictPair.Value)
                 {
                     if (consumable.GetNeedValue(need) > 0)
                     {
-                        int thisTargetDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(creature.position, MapUtils.ConvertPerceivableMapCoordsToMapCoords(dictPair.Key, perceivableTiles, map, creature.position));
+                        int thisTargetDistance = MapUtils.GetAbsoluteDistanceBetweenTwoPoints(creature.coords, MapUtils.ConvertPerceivableMapCoordsToMapCoords(dictPair.Key, perceivableTiles, map, creature.coords));
 
                         // If we find a closer food item
                         if (thisTargetDistance < targetDistance)
@@ -389,7 +389,7 @@ namespace SurvivalGame.Content.Characters.AI
             // If creature is close enough, fulfil the need
             if(targetDistance <= 1)
             {
-                map.GetItemFromMap(needItem.name, creature.inv, MapUtils.ConvertPerceivableMapCoordsToMapCoords(nearestCoords, perceivableTiles, map, creature.position));
+                map.GetItemFromMap(needItem.name, creature.inv, MapUtils.ConvertPerceivableMapCoordsToMapCoords(nearestCoords, perceivableTiles, map, creature.coords));
                 (creature.inv.GetItemByName(needItem.name) as ConsumableItem).OnConsumption(creature);
                 return;
             }
@@ -433,7 +433,7 @@ namespace SurvivalGame.Content.Characters.AI
 
         public void Wander()
         {
-            Dictionary<int[], int> weightDictionary = new Dictionary<int[], int>();
+            Dictionary<Coords, int> weightDictionary = new Dictionary<Coords, int>();
 
             // Weights how much the creature should prefer each adjacent tile
             foreach (Coords tileCoords in adjacentTiles)
@@ -444,7 +444,7 @@ namespace SurvivalGame.Content.Characters.AI
                 if ((perceivableTiles[tileCoords.x, tileCoords.y] != null) && (!perceivableTiles[tileCoords.x, tileCoords.y].blocksMovement))
                 {
                     // If current tile has been visited recently, weigh more strongly for less curious creatures.
-                    if (previouslyVisitedTiles.Contains(MapUtils.ConvertPerceivableMapCoordsToMapCoords(tileCoords.GetCoordsArray(), perceivableTiles, map, creature.position)))
+                    if (previouslyVisitedTiles.Contains(MapUtils.ConvertPerceivableMapCoordsToMapCoords(tileCoords, perceivableTiles, map, creature.coords)))
                     {
                         // TODO - the 10 should be set in a global variable as "MAX_CURIOSITY" or something. May want to do this differently.
                         weight += 2*(10 - curiosity);
@@ -454,7 +454,7 @@ namespace SurvivalGame.Content.Characters.AI
                         weight += curiosity;
                     }
 
-                    weightDictionary.Add(tileCoords.GetCoordsArray(), weight);
+                    weightDictionary.Add(tileCoords, weight);
                 }
             }
 
@@ -463,14 +463,14 @@ namespace SurvivalGame.Content.Characters.AI
             int totalWeight = list.Sum(x => weightDictionary[x]);
             int directionChosen = rnd.Next(1, totalWeight + 1);
 
-            foreach(int[] tile in list)
+            foreach(Coords tile in list)
             {
                 // Take the weight of the current square from our generated number
                 directionChosen -= weightDictionary[tile];
                     
                 if (directionChosen <= 0) // Then this is the direction we move in. Do so and return.
                 {
-                    int[] newCoords = MapUtils.ConvertPerceivableMapCoordsToMapCoords(tile, perceivableTiles, map, creature.position);
+                    Coords newCoords = MapUtils.ConvertPerceivableMapCoordsToMapCoords(tile, perceivableTiles, map, creature.coords);
 
                     creature.UpdatePosition(map, newCoords);
                     UpdatePreviouslyVisitedTiles(newCoords);
@@ -486,7 +486,7 @@ namespace SurvivalGame.Content.Characters.AI
             // Intialise to really big number. May want to do this more sentibly in future (TODO?)
             int currentDistanceToTarget = BIG_NUMBER;
             // TODO - remove magic strings!
-            int[] moveCoords = new int[] { 5, 5 };
+            Coords moveCoords = new Coords(5, 5);
             Dictionary<Coords, int> dMap = MapUtils.GetDijkstraMap(perceivableTiles, targetCoords);
             
             foreach (Coords tileCoords in adjacentTiles)
@@ -494,14 +494,14 @@ namespace SurvivalGame.Content.Characters.AI
                 if (dMap.ContainsKey(tileCoords) && dMap[tileCoords] < currentDistanceToTarget)
                 {
                     // TODO - Replace this with the Coords logic
-                    moveCoords = new int[] { tileCoords.x, tileCoords.y };
+                    moveCoords = new Coords(tileCoords.x, tileCoords.y);
                     currentDistanceToTarget = dMap[tileCoords];
                 }
             }
 
             if(currentDistanceToTarget != BIG_NUMBER)
             {
-                creature.UpdatePosition(map, MapUtils.ConvertPerceivableMapCoordsToMapCoords(moveCoords, perceivableTiles, map, creature.position));
+                creature.UpdatePosition(map, MapUtils.ConvertPerceivableMapCoordsToMapCoords(moveCoords, perceivableTiles, map, creature.coords));
             }
             else
             {

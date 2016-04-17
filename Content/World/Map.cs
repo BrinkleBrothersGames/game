@@ -10,7 +10,6 @@ namespace Game.Content.World
 {
     public class Map
     {
-        // TODO - We need to make a method that returns a tile given a Coords input
         // TODO - We probable want to create getter/setter methods for these. Make everything private that should be private
         public int height;
         public int width;
@@ -29,19 +28,19 @@ namespace Game.Content.World
             height = 20;
             width = 20;
             layout = GenerateSuburbsMap(width, height);
-            Creature rat = new Creature("rat", new int[] { 5, 5 });
+            Creature rat = new Creature("rat", new Coords(5, 5));
             presentCreatures.Add(rat);
-            rat.UpdatePosition(this, new int[] { 9, 7 });
+//            rat.UpdatePosition(this, new Coords(9, 7));
             rat.needs.hungerLevel = 2;
-           // for(int i = 0; i < 50; i++)
-           // {
-           //     Creature ratBaby = new Creature("rat", new int[] { 0, 0});
-           //     presentCreatures.Add(ratBaby);
-           // }
-           //
-            foreach(Creature creature in presentCreatures)
+            // for(int i = 0; i < 50; i++)
+            // {
+            //     Creature ratBaby = new Creature("rat", new Coords(0, 0));
+            //     presentCreatures.Add(ratBaby);
+            // }
+            //
+            foreach (Creature creature in presentCreatures)
             {
-                creature.UpdatePosition(this, new int[] { rnd.Next(10, width), rnd.Next(10, height) });
+                creature.UpdatePosition(this, new Coords(rnd.Next(10, width), rnd.Next(10, height)));
             }
         }
 
@@ -66,19 +65,11 @@ namespace Game.Content.World
             {
                 Item creatureCorpse = new Item(creature.name + " corpse");
 
-                Tile creatureTile = map.layout[creature.position[0], creature.position[1]];
+                Tile creatureTile = map.layout[creature.coords.x, creature.coords.y];
          
                 creatureTile.contentsItems.AddItemToInventory(creatureCorpse);
-           
-                foreach (KeyValuePair<Item, int> entry in creature.inv.inventory)
-                {
-                    //TODO This for loop should be replaced with a statement to be written in inventory, which can add multiple items.
-                    for (int i = 1; i <= entry.Value; i++)
-                    {
-                        creatureTile.contentsItems.AddItemToInventory(entry.Key);
-                    }
-                
-                }
+
+                creatureTile.contentsItems.AddItemsToInventory(creature.inv.inventory);
 
                 map.presentCreatures.Remove(creature);
 
@@ -98,13 +89,13 @@ namespace Game.Content.World
         /// <param name="inv"></param>
         /// <param name="coords"></param>
         /// <returns></returns>
-        public bool GetItemFromMap(string item, Inventory inv, int[] coords)
+        public bool GetItemFromMap(string item, Inventory inv, Coords coords)
         {
-            foreach (Item mapItem in layout[coords[0], coords[1]].contentsItems.inventory.Keys)
+            foreach (Item mapItem in layout[coords.x, coords.y].contentsItems.inventory.Keys)
             {
                 if (mapItem.name == item)
                 {
-                    layout[coords[0], coords[1]].contentsItems.RemoveItemFromInventory(mapItem);
+                    layout[coords.x, coords.y].contentsItems.RemoveItemFromInventory(mapItem);
                     inv.AddItemToInventory(mapItem);
                     return true;
                 }
@@ -120,14 +111,12 @@ namespace Game.Content.World
         /// <param name="map"></param>
         public void RenderMap(Map map, Player player)
         {
-            int[] playerCoords = player.GetPlayerCoords();
-
-            for (int y = playerCoords[1] + 15; y >= playerCoords[1] - 15; y--)
+            for (int y = player.coords.y + 15; y >= player.coords.y - 15; y--)
             {
                 string rowString = "";
 
                 // And for each column of that row...
-                for (int x = playerCoords[0] - 15; x <= playerCoords[0] + 15; x++)
+                for (int x = player.coords.x - 15; x <= player.coords.x + 15; x++)
                 {
                     // Add the graphic representation of that tile to a string
                     if (x < 0 || x >= map.layout.GetLength(0) || y < 0 || y >= map.layout.GetLength(1))
@@ -138,7 +127,6 @@ namespace Game.Content.World
                     {
                         rowString += GetTileImage(map.layout[x, y]);
                     }
-
                 }
 
                 // When the row is complete, print it
@@ -158,6 +146,7 @@ namespace Game.Content.World
             Terrain wall = new Terrain("wall");
             Terrain floor = new Terrain("floor");
             Terrain playerTerrain = new Terrain("player");            
+
             Terrain rat = new Terrain("rat");
 
             if (tile.contentsTerrain.Contains(playerTerrain))

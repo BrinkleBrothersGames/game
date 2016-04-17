@@ -1,7 +1,7 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Characters;
 using SurvivalGame.Content.Items;
-using SurvivalGame.Content.Items.Crafting;
+using SurvivalGame.Content.World;
 using SurvivalGame.Engine;
 using SurvivalGame.Utils;
 using System;
@@ -27,15 +27,14 @@ namespace Game
         public GameInit()
         {
             this.currentLevel = new Map();
-            Inventory inv = new Inventory();
-            this.player = new Player(15, 15, inv);
+            this.player = new Player(15, 15);
             this.clock = new Clock(player, currentLevel);
             this.run = true;
 
             PlayerSetupClass setupPlayer = new PlayerSetupClass();
             setupPlayer.PlayerSetup(player);
 
-            player.UpdatePlayerPosition(currentLevel, player, new int[] { 15, 15 });
+            player.UpdatePlayerPosition(currentLevel, player, new Coords(15, 15));
         }
 
         // TODO - Should probably go in a player control class or something
@@ -43,37 +42,43 @@ namespace Game
         public void doPlayerAction(string actionLong)
         {
             // Initialised and assigned here to account for player not taking specific action
-            int[] playerCoords = player.GetPlayerCoords();
             int timeTaken = 0;
 
+            // Why array not list?
             string[] splitAction = actionLong.Split(' ');
             string action = splitAction[0];
             // TODO - change this to 'actionPassed' or something, use for special case for failure of all actions
-            bool hasItem;
+            bool doesntHaveItem;
+            bool playerMoves = false;
+            Coords newCoords;
 
             switch (action)
             {
                 case ("w"):
-                    playerCoords[1] += 1;
+                    newCoords = new Coords(player.coords.x, player.coords.y + 1);
+                    playerMoves = player.UpdatePlayerPosition(currentLevel, player, newCoords);
                     break;
                 case ("s"):
-                    playerCoords[1] -= 1;
+                    newCoords = new Coords(player.coords.x, player.coords.y - 1);
+                    playerMoves = player.UpdatePlayerPosition(currentLevel, player, newCoords);
                     break;
                 case ("a"):
-                    playerCoords[0] -= 1;
+                    newCoords = new Coords(player.coords.x - 1, player.coords.y);
+                    playerMoves = player.UpdatePlayerPosition(currentLevel, player, newCoords);
                     break;
                 case ("d"):
-                    playerCoords[0] += 1;
+                    newCoords = new Coords(player.coords.x + 1, player.coords.y);
+                    playerMoves = player.UpdatePlayerPosition(currentLevel, player, newCoords);
                     break;
                 // TODO - these 'movement' commands shouldn't work this way. Should call method themselves with the new value
                 case ("status"):
                     player.GetStatus();
                     break;
                 case ("look"):
-                    if (currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.inventory.Count > 0)
+                    if (currentLevel.layout[player.coords.x, player.coords.y].contentsItems.inventory.Count > 0)
                     {
                         Console.Write("Here, you can see");
-                        foreach (Item mapItem in currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.inventory.Keys)
+                        foreach (Item mapItem in currentLevel.layout[player.coords.x, player.coords.y].contentsItems.inventory.Keys)
                         {
                             Console.Write(" a " + mapItem.name);
                         }
@@ -85,7 +90,7 @@ namespace Game
                     }
                     break;
                 case ("drop"):
-                    hasItem = true;
+                    doesntHaveItem = true;
 
                     foreach (Item invItem in player.inv.inventory.Keys)
                     {
@@ -93,51 +98,46 @@ namespace Game
                         {
                             player.inv.RemoveItemFromInventory(invItem);
                             Console.WriteLine("You drop a " + splitAction[1]);
-                            currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.AddItemToInventory(invItem);
-                            hasItem = false;
+                            currentLevel.layout[player.coords.x, player.coords.y].contentsItems.AddItemToInventory(invItem);
+                            doesntHaveItem = false;
                             break;
                         }
                     }
-                    if (hasItem)
+                    if (doesntHaveItem)
                     {
                         Console.WriteLine("You don't have a " + splitAction[1] + " in your inventory. You don't drop anything.");
                     }
                     break;
                 case ("get"):
-                    hasItem = true;
-
-                    foreach (Item mapItem in currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.inventory.Keys)
+                    foreach (Item mapItem in currentLevel.layout[player.coords.x, player.coords.y].contentsItems.inventory.Keys)
                     {
                         if (mapItem.name == splitAction[1])
                         {
-                            currentLevel.layout[playerCoords[0], playerCoords[1]].contentsItems.RemoveItemFromInventory(mapItem);
-                            Console.WriteLine("You take a " + splitAction[1] + " from the floor.");
-                            player.inv.AddItemToInventory(mapItem);
-                            hasItem = false;
+                            if (player.inv.AddItemToInventory(mapItem))
+                            {
+                                currentLevel.layout[player.coords.x, player.coords.y].contentsItems.RemoveItemFromInventory(mapItem);
+                                Console.WriteLine("You take a " + splitAction[1] + " from the floor.");
+                            }
                             break;
                         }
-                    }
-                    if (hasItem)
-                    {
-                        Console.WriteLine("You don't have a " + splitAction[1] + " in your inventory. You don't drop anything.");
                     }
                     break;
                 case ("use"):
                 case ("eat"):
                 case ("drink"):
-                    hasItem = true;
+                    doesntHaveItem = true;
 
                     foreach (ConsumableItem consmItem in player.inv.inventory.Keys)
                     {
                         if (consmItem.name == splitAction[1])
                         {
+                            doesntHaveItem = false;
                             consmItem.OnConsumption(player);
-                            hasItem = false;
                             Console.WriteLine("You " + splitAction[0] + " the " + splitAction[1] + ".");
                             break;
                         }
                     }
-                    if (hasItem)
+                    if (doesntHaveItem)
                     {
                         Console.WriteLine("You don't have a " + splitAction[1] + " in your inventory.");
                     }
@@ -161,10 +161,30 @@ namespace Game
                     Fight fight = new Fight();
                     fight.PlayerAttackScreen(player, currentLevel);
                     break;
-                case ("craft"):
-                    Craft craft = new Craft();
-                    Recipe testRecipe = new Recipe(new Dictionary<Item, int>(), new Dictionary<Item, int>() { { new Item("bogus crafting dude!"), 10} }, new List<Item>(), new Skill("cooking", 1));
-                    craft.CreateRecipe(testRecipe, player, currentLevel);
+                case ("equip"):
+
+                    //TODO - Ideally should check within this command wether the item and body part actually exist.
+                    List<string> itemBodyPart = PlayerInput.ProcessEquipCommand(splitAction);
+
+                    if (itemBodyPart == null)
+                    {
+                        Console.WriteLine("Write command in the form 'equip item to bodypart', or 'equip item'");
+                    }
+                    else if (itemBodyPart.Count == 2)
+                    {
+                        Item item = new Item(itemBodyPart[0]);
+
+                        //TODO - should try and find relevent body part.
+                        BodyPart bodyPart = new BodyPart(itemBodyPart[1], 1);
+
+                        item.Equip(player, bodyPart);
+                    }
+                    else if (itemBodyPart.Count == 1)
+                    {
+                        // TODO - I think this can only really be implemented when we have a seperate list of specific items and body parts.
+                        Console.WriteLine("Which body part do you wish to equip to? (this doesn't work yet)");
+
+                    }
                     break;
                 default:
                     // TryDebugAction for testing only. Should be removed in release versions.
@@ -176,7 +196,7 @@ namespace Game
 
             // TODO - Ouch! Move the update player position to only where it's relevant!
 
-            if (player.UpdatePlayerPosition(currentLevel, player, playerCoords))
+            if (playerMoves)
             {
                 timeTaken = 2;
             }
@@ -193,7 +213,6 @@ namespace Game
             game.currentLevel.WriteToFile();
 
             // TODO - Add enumerator for inventory class.
-            // TODO - Add super class for creature/player (called actor) and super class for item/terrain (called ?)
 
             while (game.run)
             { 

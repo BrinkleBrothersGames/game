@@ -10,7 +10,6 @@ namespace SurvivalGame.Content.Characters
     {
         // TODO - Assumes levels are linear. May want to add logic for exponential increase.
         int EXPERIENCE_PER_LEVEL = 100;
-        int LEVEL_CAP = 5;
 
         string name;
         double modifier;
@@ -31,11 +30,7 @@ namespace SurvivalGame.Content.Characters
         /// <param name="experienceAdded"></param>
         public void AddExperience(int experienceAdded)
         {
-            // If player is not at level cap, add experience. Otherwise, do nothing.
-            if(!(experience < EXPERIENCE_PER_LEVEL * LEVEL_CAP))
-            {
-                this.experience += experienceAdded;
-            }
+            this.experience += experienceAdded;
         }
 
         /// <summary>
