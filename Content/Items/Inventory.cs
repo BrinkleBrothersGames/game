@@ -49,6 +49,19 @@ namespace SurvivalGame.Content.Items
             }
         }
 
+        public void AddItemToInventory(Item item, int number)
+        {
+            // If dictionary contains item, increase count by 1. Else add item to inventory.
+            if (this.inventory.ContainsKey(item))
+            {
+                this.inventory[item] += number;
+            }
+            else
+            {
+                this.inventory.Add(item, number);
+            }
+        }
+
         public void RemoveItemFromInventory(Item item)
         {
             if (!this.inventory.ContainsKey(item))
@@ -65,6 +78,37 @@ namespace SurvivalGame.Content.Items
             {
                 this.inventory.Remove(item);
             }
+        }
+
+        public void RemoveItemFromInventory(Item item, int numRemoved)
+        {
+            if (!this.inventory.ContainsKey(item))
+            {
+                return;
+            }
+
+            // If dictionary contains  multiple of item, decrease count by numRemoved. Else remove item from inventory.
+            if (this.inventory[item] > numRemoved)
+            {
+                this.inventory[item] -= numRemoved;
+            }
+            else
+            {
+                this.inventory.Remove(item);
+            }
+        }
+
+        public bool Contains(Item inputItem)
+        {
+            foreach(Item item in this.inventory.Keys)
+            {
+                if (item.Equals(inputItem))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void PrintInventory()
@@ -84,6 +128,5 @@ namespace SurvivalGame.Content.Items
                 }
             }
         }
-
     }
 }

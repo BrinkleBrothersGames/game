@@ -55,6 +55,8 @@
     <Compile Include="Content\Characters\Stats.cs" />
     <Compile Include="Content\Characters\TemporaryStats.cs" />
     <Compile Include="Content\Items\ConsumableItem.cs" />
+    <Compile Include="Content\Items\Crafting\Craft.cs" />
+    <Compile Include="Content\Items\Crafting\Recipe.cs" />
     <Compile Include="Content\Items\Inventory.cs" />
     <Compile Include="Content\Items\Item.cs" />
     <Compile Include="Content\World\Coords.cs" />

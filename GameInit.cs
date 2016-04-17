@@ -1,6 +1,7 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Characters;
 using SurvivalGame.Content.Items;
+using SurvivalGame.Content.Items.Crafting;
 using SurvivalGame.Engine;
 using SurvivalGame.Utils;
 using System;
@@ -160,6 +161,11 @@ namespace Game
                     Fight fight = new Fight();
                     fight.PlayerAttackScreen(player, currentLevel);
                     break;
+                case ("craft"):
+                    Craft craft = new Craft();
+                    Recipe testRecipe = new Recipe(new Dictionary<Item, int>(), new Dictionary<Item, int>() { { new Item("bogus crafting dude!"), 10} }, new List<Item>(), new Skill("cooking", 1));
+                    craft.CreateRecipe(testRecipe, player, currentLevel);
+                    break;
                 default:
                     // TryDebugAction for testing only. Should be removed in release versions.
                     DebugCommands.TryDebugAction(actionLong, clock, player, currentLevel);
@@ -187,6 +193,7 @@ namespace Game
             game.currentLevel.WriteToFile();
 
             // TODO - Add enumerator for inventory class.
+            // TODO - Add super class for creature/player (called actor) and super class for item/terrain (called ?)
 
             while (game.run)
             { 

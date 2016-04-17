@@ -10,6 +10,7 @@ namespace Game.Content.World
 {
     public class Map
     {
+        // TODO - We need to make a method that returns a tile given a Coords input
         // TODO - We probable want to create getter/setter methods for these. Make everything private that should be private
         public int height;
         public int width;

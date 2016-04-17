@@ -1,6 +1,7 @@
 ﻿using Game.Content.World;
 using SurvivalGame.Content.Characters;
 using SurvivalGame.Content.Items;
+using SurvivalGame.Content.Items.Crafting;
 using SurvivalGame.Engine;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,12 @@ namespace SurvivalGame.Utils
             else if ((splitAction[0].Contains("addstrengtheffect")))
             {
                 clock.AddTimedEffect(new Engine.Time.Effect(200, new Dictionary<string, int>() { { "strength", 5 } }, player));
+            }
+            else if ((splitAction[0].Contains("testcraft")))
+            {
+                Craft craft = new Craft();
+                Recipe testRecipe = new Recipe(new Dictionary<Item, int>() { { new Item("TestItem1"), 1} }, new Dictionary<Item, int>() { { new Item("bogus crafting dude!"), 10 } }, new List<Item>() { new Item("TestItem2") }, new Skill("cooking", 1));
+                craft.CreateRecipe(testRecipe, player, currentLevel);
             }
         }
 

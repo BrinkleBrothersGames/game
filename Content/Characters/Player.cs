@@ -12,17 +12,20 @@ namespace SurvivalGame.Content.Characters
 {
     public class Player
     {
-        int playerXCoord;
-        int playerYCoord;
+        public int playerXCoord;
+        public int playerYCoord;
+        public Coords playerCoords;
         public Inventory inv;
         public Needs needs;
         public Stats stats;
+        public List<Skill> skillList;
         public TemporaryStats tempStats;
         
         public Player(int x, int y, Inventory inv)
         {
             this.playerXCoord = x;
             this.playerYCoord = y;
+            playerCoords = new Coords(x, y);
             this.inv = inv;
             this.needs = new Needs();
             this.stats = new Stats();
@@ -33,6 +36,7 @@ namespace SurvivalGame.Content.Characters
         {
             this.playerXCoord = x;
             this.playerYCoord = y;
+            playerCoords = new Coords(x, y);
         }
 
         // TODO - should implement 0-1-infinity rule here too - should we?
@@ -40,6 +44,7 @@ namespace SurvivalGame.Content.Characters
         {
             this.playerXCoord = coords[0];
             this.playerYCoord = coords[1];
+            playerCoords = new Coords(coords[0], coords[1]);
         }
 
         public int[] GetPlayerCoords()
